@@ -9,30 +9,45 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 * .NET Framework 4.5.2 or higher
-
-```
-Give examples
-```
+* Visual Studio 2017 Community or higher
 
 ### Installing
 
-Download the latest release, see the [tags on this repository](https://github.com/patdhlk/vnclib/tags) and use it in your .NET application.
+Download the latest release, see the [tags on this repository](https://github.com/patdhlk/vnclib/tags) and add a reference in your .NET application or build it yourself using msbuild or/and vs2017.
 
-A step by step series of examples that tell you have to get a development env running
+Then you can use it in your ViewModel or somewhere you want to display the remote desktop.
 
-Say what the step will be
-
+```cs
+VncConnection vncConnection = new VncConnection(bindAddress, port, password);
+//create a RemoteDesktop instance
+RemoteDesktop remoteDesktop = new RemoteDesktop(vncConnection);
+//and, e.g. use it in your ViewModel;
+RemoteDesktopViewModel vm = new RemoteDesktopViewModel(remoteDesktop);
+VncRemoteDesktopView view = new VncRemoteDesktopView();
+view.DataContext = vm;
+return view;
 ```
-Give the example
-```
 
-And repeat
+In your ViewModel you can handle the desktop changed event:
 
-```
-until finished
-```
+```cs
+public RemoteDesktopViewModel()
+{
+    _remoteDesktop.DesktopUpdated += RemoteDesktopOnDesktopUpdated;
+}
 
-End with an example of getting some data out of the system or using it for a little demo
+private void RemoteDesktopOnDesktopUpdated(object sender, Bitmap bitmap)
+{
+    var bit = new Bitmap(bitmap);
+    Application.Current.Dispatcher.BeginInvoke(new Action(() => 
+    { 
+        Desktop = RemoteDesktop.ConvertBitMapToBitmapImage(bit); 
+    }));
+}
+```
+And in your View you have a Binding to the `Desktop` property
+
+A little demo will be added here in a few days.
 
 ## Built With
 
@@ -40,7 +55,7 @@ End with an example of getting some data out of the system or using it for a lit
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/patdhlk/vnclib/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
@@ -48,16 +63,10 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **patdhlk** - *Initial work* - [PurpleBooth](https://github.com/patdhlk)
+* **patdhlk** - *Initial work* - [patdhlk](https://github.com/patdhlk)
 
 See also the list of [contributors](https://github.com/patdhlk/vnclib/contributors) who participated in this project.
 
 ## License
 
 This project is licensed under the three-clause BSD license - see the [LICENSE](LICENSE) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
