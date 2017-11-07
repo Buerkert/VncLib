@@ -187,7 +187,7 @@ namespace VncLib
         /// <summary>
         /// Authenticate with the VNC Host using a user supplied password.
         /// </summary>
-        /// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is already Connected.  See <see cref="VncSharp.RemoteDesktop.IsConnected" />.</exception>
+        /// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is already Connected. />.</exception>
         /// <exception cref="System.NullReferenceException">Thrown if the password is null.</exception>
         /// <param name="password">The user's password.</param>
         private void Authenticate(string password)
@@ -208,7 +208,7 @@ namespace VncLib
         /// <summary>
         /// After protocol-level initialization and connecting is complete, the local GUI objects have to be set-up, and requests for updates to the remote host begun.
         /// </summary>
-        /// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is already in the Connected state.  See <see cref="VncSharp.RemoteDesktop.IsConnected" />.</exception>		
+        /// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is already in the Connected state. />.</exception>		
         private void Initialize()
         {
             // Finish protocol handshake with host now that authentication is done.
@@ -225,7 +225,7 @@ namespace VncLib
         /// <summary>
         /// Stops the remote host from sending further updates and disconnects.
         /// </summary>
-        /// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is not already in the Connected state. See <see cref="VncSharp.RemoteDesktop.IsConnected" />.</exception>
+        /// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is not already in the Connected state. />.</exception>
         public void Disconnect()
         {
             lock (_vnc)
