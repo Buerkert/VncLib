@@ -10,6 +10,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 namespace VncLib
@@ -214,6 +215,26 @@ namespace VncLib
                 return true;
             }
             return false;
+        }
+
+        public void WriteMouseAction(Point p, MouseEventArgs e)
+        {
+            byte mask = 0;
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                mask += 1;
+            }
+            if (e.MiddleButton == MouseButtonState.Pressed)
+            {
+                mask += 2;
+            }
+            if (e.RightButton == MouseButtonState.Pressed)
+            {
+                mask += 4;
+            }
+
+            Point point = new Point((int)p.X, (int)p.Y);
+            WritePointer(point, mask);
         }
 
         public static BitmapImage ConvertBitmapToBitmapImage(Bitmap src)
