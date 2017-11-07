@@ -13,7 +13,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
-Download the latest release, see the [tags on this repository](https://github.com/patdhlk/vnclib/tags) and add a reference in your .NET application or build it yourself using msbuild or/and vs2017.
+Download the latest release, see the [Releases](https://github.com/patdhlk/vnclib/releases) and add a reference in your .NET application or build it yourself using msbuild or/and vs2017.
 
 Then you can use it in your ViewModel or somewhere you want to display the remote desktop.
 
