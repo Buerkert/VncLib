@@ -232,9 +232,8 @@ namespace VncLib
             {
                 mask += 4;
             }
-
-            Point point = new Point((int)p.X, (int)p.Y);
-            WritePointer(point, mask);
+            
+            WritePointer(p, mask);
         }
 
         public static BitmapImage ConvertBitmapToBitmapImage(Bitmap src)
