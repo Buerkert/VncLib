@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace VncLib
@@ -22,10 +23,9 @@ namespace VncLib
 	    private Rfb _rfb;			// The protocol object handling all communication with server.
 	    private byte _securityType;			// The type of Security agreed upon by client/server
 	    private EncodedRectangleFactory _factory;
-	    private Thread _worker;				// To request and read in-coming updates from server
 	    private ManualResetEvent _done;		// Used to tell the worker thread to die cleanly
 	    private bool _isViewOnly;
-
+	    private CancellationTokenSource _cancellationTokenSource;
 		/// <summary>
 		/// Raised when the connection to the remote host is lost.
 		/// </summary>
@@ -281,13 +281,20 @@ namespace VncLib
 		/// </summary>
 		public void StartUpdates()
 		{
-			// Start getting updates on background thread.
-			_worker = new Thread(GetRfbUpdates);
-            // Bug Fix (Grégoire Pailler) for clipboard and threading
-            _worker.SetApartmentState(ApartmentState.STA);
-            _worker.IsBackground = true;
-			_done = new ManualResetEvent(false);
-			_worker.Start();
+			//// Start getting updates on background thread.
+			//_worker = new Thread(GetRfbUpdates);
+   //         // Bug Fix (Grégoire Pailler) for clipboard and threading
+   //         _worker.SetApartmentState(ApartmentState.STA);
+   //         _worker.IsBackground = true;
+			
+			//_worker.Start();
+            _cancellationTokenSource = new CancellationTokenSource();
+		    Task.Run(() =>
+		    {
+		        _done = new ManualResetEvent(false);
+		        GetRfbUpdates(_cancellationTokenSource.Token);
+		        
+		    }, _cancellationTokenSource.Token);
 		}
 
 		/// <summary>
@@ -307,7 +314,7 @@ namespace VncLib
 				// VncClient raising a ConnectionLost event (e.g., the remote host died).
 			}
 
-			_worker.Join(3000);	// this number is arbitrary, just so that it doesn't block forever....
+			_cancellationTokenSource.Cancel();
 
 			_rfb.Close();	
 			_rfb = null;
@@ -326,17 +333,20 @@ namespace VncLib
 		/// <summary>
 		/// Worker thread lives here and processes protocol messages infinitely, triggering events or other actions as necessary.
 		/// </summary>
-		private void GetRfbUpdates()
+		private void GetRfbUpdates(CancellationToken token)
 		{
 		    // Get the initial destkop from the host
 			RequestScreenUpdate(true);
 
-			while (true) {
+			while (true)
+			{
+			    if (token.IsCancellationRequested)
+			        break;
+
 				if (CheckIfThreadDone())
 					break;
 
                 try {
-                    // ReSharper disable once SwitchStatementMissingSomeCases
                     switch (_rfb.ReadServerMessageType()) {
                         case Rfb.FRAMEBUFFER_UPDATE:
                             var rectangles = _rfb.ReadFramebufferUpdate();
@@ -382,11 +392,16 @@ namespace VncLib
                         case Rfb.SET_COLOUR_MAP_ENTRIES:
 							_rfb.ReadColourMapEntry();
                             break;
+                        default:
+                            break;
                     }
                 } catch {
                     OnConnectionLost();
                 }
-			}
+
+			    if (token.IsCancellationRequested)
+			        break;
+            }
 		}
 
 	    private void OnConnectionLost()

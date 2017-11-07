@@ -28,6 +28,7 @@ namespace VncLib
 
         public RemoteDesktop(VncConnection vncConnection)
         {
+            Fps = 24;
             _vncConnection = vncConnection;
 
             // Create a buffer on which updated rectangles will be drawn and draw a "please wait..." 
@@ -93,29 +94,21 @@ namespace VncLib
 
         private void UpdateThreadRunInternal()
         {
-            Stopwatch st = new Stopwatch();
             while (!_updateThreadShouldStop)
             {
                 if (_vncConnection.IsConnectionActive)
                 {
-                    st.Restart();
+                    
                     _vncConnection.RequestScreenUpdate(true);
                     _vncUpdated.WaitOne();
-                    Thread.Sleep(200); // just give it some time...
-                    st.Stop();
-                    lock (TimeDisplay)
-                    {
-                        var tooOld = TimeDisplay.Keys.Where(k => k.AddSeconds(1) < DateTime.Now).ToList();
-                        foreach (var key in tooOld)
-                        {
-                            TimeDisplay.Remove(key);
-                        }
-                        TimeDisplay.Add(DateTime.Now, st.Elapsed);
-                        AverageUpdateTime = TimeSpan.FromMilliseconds(TimeDisplay.Values.Average(i => i.TotalMilliseconds));
-                    }
+                    if (Fps <= 0)
+                        Fps = 24;
+                    Thread.Sleep(1000 / Fps); // just give it some time...
                 }
             }
         }
+
+        public int Fps { get; set; }
 
 
         // This event handler deals with Frambebuffer Updates coming from the host. An
@@ -234,6 +227,7 @@ namespace VncLib
             }
             
             WritePointer(p, mask);
+            e.Handled = true;
         }
 
         public static BitmapImage ConvertBitmapToBitmapImage(Bitmap src)

@@ -105,14 +105,14 @@ namespace VncLib
 
         private void OnVncUpdateInternal(object sender, VncEventArgs e)
         {
-            lock (_bitmapLock)
+            lock (_vnc)
             {
                 e.DesktopUpdater.Draw(_bitmap);
             }
             _screenshotEvent.Set();
             Task.Run(() =>
             {
-                lock (_bitmapLock)
+                lock (_vnc)
                 {
                     OnVncUpdate(new Bitmap(_bitmap));
                 }
