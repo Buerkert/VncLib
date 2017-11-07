@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C68C228E-AD77-458A-BC96-7DA87C776998}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VncLib</RootNamespace>
+    <AssemblyName>VncLib</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConnectEventArgs.cs" />
+    <Compile Include="EncodedRectangleFactory.cs" />
+    <Compile Include="Encodings\CopyRectRectangle.cs" />
+    <Compile Include="Encodings\CoRreRectangle.cs" />
+    <Compile Include="Encodings\CPixelReader.cs" />
+    <Compile Include="Encodings\EncodedRectangle.cs" />
+    <Compile Include="Encodings\HextileRectangle.cs" />
+    <Compile Include="Encodings\PixelReader.cs" />
+    <Compile Include="Encodings\PixelReader16.cs" />
+    <Compile Include="Encodings\PixelReader32.cs" />
+    <Compile Include="Encodings\PixelReader8.cs" />
+    <Compile Include="Encodings\RawRectangle.cs" />
+    <Compile Include="Encodings\RreRectangle.cs" />
+    <Compile Include="Encodings\ZrleRectangle.cs" />
+    <Compile Include="Framebuffer.cs" />
+    <Compile Include="IDesktopUpdater.cs" />
+    <Compile Include="KeyboardConstants.cs" />
+    <Compile Include="KeyboardHook.cs" />
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RemoteDesktop.cs" />
+    <Compile Include="Rfb.BigEndianBinaryReader.cs" />
+    <Compile Include="Rfb.BigEndianBinaryWriter.cs" />
+    <Compile Include="Rfb.cs" />
+    <Compile Include="Rfb.ZrleCompressedReader.cs" />
+    <Compile Include="VncClient.cs" />
+    <Compile Include="VncConnection.cs" />
+    <Compile Include="VncEventArgs.cs" />
+    <Compile Include="VncProtocolException.cs" />
+    <Compile Include="zlib.NET\Adler32.cs" />
+    <Compile Include="zlib.NET\Deflate.cs" />
+    <Compile Include="zlib.NET\InfBlocks.cs" />
+    <Compile Include="zlib.NET\InfCodes.cs" />
+    <Compile Include="zlib.NET\Inflate.cs" />
+    <Compile Include="zlib.NET\InfTree.cs" />
+    <Compile Include="zlib.NET\StaticTree.cs" />
+    <Compile Include="zlib.NET\SupportClass.cs" />
+    <Compile Include="zlib.NET\Tree.cs" />
+    <Compile Include="zlib.NET\ZInputStream.cs" />
+    <Compile Include="zlib.NET\Zlib.cs" />
+    <Compile Include="zlib.NET\ZOutputStream.cs" />
+    <Compile Include="zlib.NET\ZStream.cs" />
+    <Compile Include="zlib.NET\ZStreamException.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
