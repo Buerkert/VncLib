@@ -40,6 +40,7 @@ namespace VncLib
         public VncLibControl()
         {
             InitializeComponent();
+            FakeInput.CaretBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
             ServerPort = 5900;
             CreateSpecialKeys();
 
@@ -405,8 +406,8 @@ namespace VncLib
                 buttonValue += 2;
 
             //Don't send, if there is no MouseClick and a Event was triggered less then 1/5 second before.
-            if (LimitMouseEvents && buttonValue == 0 && DateTime.Now.Subtract(_lastMouseMove).TotalMilliseconds < 200)
-                return;
+            //if (LimitMouseEvents && buttonValue == 0 && DateTime.Now.Subtract(_lastMouseMove).TotalMilliseconds < 200)
+            //    return;
 
             if (_connection != null && _connection.IsConnected)
             {

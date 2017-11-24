@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:VncLib.Client"
         xmlns:vncLib="clr-namespace:VncLib;assembly=VncLib"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        SizeToContent="WidthAndHeight"
+        Title="MainWindow" MinHeight="350" Width="525">
     <StackPanel>
         <Menu Height="23" Name="menu1" VerticalAlignment="Top">
             <MenuItem Header="Connect">
