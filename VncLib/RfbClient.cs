@@ -1401,7 +1401,7 @@ namespace VncLib
         void _Receiver_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             //Create Thread for running Backbuffer-Update
-            var th = new Thread(_Receiver_ProgressThread);
+            var th = new Thread(Receiver_ProgressThread);
             th.Priority = ThreadPriority.BelowNormal;
             th.Start(e.UserState);
         }
@@ -1410,49 +1410,17 @@ namespace VncLib
         /// The Thread to update the Backbuffer
         /// </summary>
         /// <param name="objChangeData"></param>
-        void _Receiver_ProgressThread(object objChangeData)
+        void Receiver_ProgressThread(object objChangeData)
         {
             try
             {
                 var changeDatas = (List<RfbRectangle>)objChangeData; //Parse Update-Data
 
-                if (ScreenUpdate != null)
+                ScreenUpdate?.Invoke(this, new ScreenUpdateEventArgs()
                 {
-                    ScreenUpdate(this, new ScreenUpdateEventArgs()
-                    {
-                        Rects = changeDatas,
-                        //PixelData = changeData.PixelData,
-                        //X = changeData.PosX,
-                        //Y = changeData.PosY,
-                        //Width = changeData.Width,
-                        //Height = changeData.Height,
-                    });
-                }
-
-                ////How many bytes a Pixel use?
-                //int bytePixelCount = _BackBuffer2PixelFormat.BitsPerPixel / 8;
-
-                ////For every Y-Pixel
-                //for (int y = 0; y < changeData.Height - 1; y++)
-                //{
-                //	 int yIndex = y * _BackBuffer2RawStride; //Get current "row"-position in _BackBuffer2PixelData
-
-                //	 //For every X-Pixel
-                //	 for (int x = 0; x < changeData.Width - 1; x++)
-                //	 {
-                //		  int byteX = x * bytePixelCount; //Get the "column"-position
-
-                //		  //Calculate the postionShifting, caused by the reason, that not every Update is on 0x0
-                //		  int positionShifting = changeData.PosY * _BackBuffer2RawStride + changeData.PosX * bytePixelCount;
-
-                //		  //Update the Backbuffer
-                //		  _BackBuffer2PixelData[byteX + yIndex + positionShifting] = changeData.PixelData[x, y, 0];
-                //		  _BackBuffer2PixelData[byteX + yIndex + 1 + positionShifting] = changeData.PixelData[x, y, 1];
-                //		  _BackBuffer2PixelData[byteX + yIndex + 2 + positionShifting] = changeData.PixelData[x, y, 2];
-                //	 }
-                //}
-
-                //UpdateScreen(null, null);
+                    Rects = changeDatas,
+                });
+                
             }
             catch (Exception ea)
             {
@@ -1460,20 +1428,7 @@ namespace VncLib
             }
         }
 
-        ///// <summary>
-        ///// Send Update-Command to the Frontend
-        ///// </summary>
-        ///// <param name="o"></param>
-        ///// <param name="e"></param>
-        //void UpdateScreen(object o, EventArgs e)
-        //{
-        //	 //Update the Screen
-        //	 if (ScreenUpdate != null)
-        //	 {
-        //		  ScreenUpdate(null, new ScreenUpdateEventArgs(_BackBuffer2PixelData, Properties.FramebufferWidth, Properties.FramebufferHeight));
-        //	 }
-        //}
-
+        
         private void _LastReceiveTimer_Tick(object sender, EventArgs e)
         {
             Log(Logtype.Debug, "Query a new Frame automatically");
@@ -2044,10 +1999,11 @@ namespace VncLib
 
             var cacheText = System.Text.Encoding.ASCII.GetString(recData);
 
-            if (ServerCutText != null)
-            {
-                var sct = new ServerCutTextEventArgs(cacheText);
-            }
+            //TODO
+            //if (ServerCutText != null)
+            //{
+            //    var sct = new ServerCutTextEventArgs(cacheText);
+            //}
 
             Log(Logtype.Debug, "New ServerCutText received. Text: " + cacheText);
 
@@ -2067,6 +2023,7 @@ namespace VncLib
         {
             try
             {
+                //UGLY
                 //Always fails... Some people say it is a bug in the WPF Clipboard handler. This works anyway but always results in an exception too. This should be changed somewhen.
                 Clipboard.SetText(cacheText.ToString());
             }
