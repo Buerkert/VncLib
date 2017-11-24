@@ -1,4 +1,9 @@
-﻿<Window x:Class="VncLib.Client.MainWindow"
+﻿<!--
+// Copyright 2017 The VncLib Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+-->
+<Window x:Class="VncLib.Client.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"

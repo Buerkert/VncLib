@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("VncLib.Client")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Burkert")]
+[assembly: AssemblyCompany("VncLib")]
 [assembly: AssemblyProduct("VncLib.Client")]
-[assembly: AssemblyCopyright("Copyright © Burkert 2017")]
+[assembly: AssemblyCopyright("Copyright 2017 The VncLib Authors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

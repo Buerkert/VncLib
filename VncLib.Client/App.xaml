@@ -1,4 +1,9 @@
-﻿<Application x:Class="VncLib.Client.App"
+﻿<!--
+// Copyright 2017 The VncLib Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+-->
+<Application x:Class="VncLib.Client.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:VncLib.Client"

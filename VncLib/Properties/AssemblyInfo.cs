@@ -1,4 +1,8 @@
-﻿using System.Reflection;
+﻿// Copyright 2017 The VncLib Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // Allgemeine Informationen über eine Assembly werden über die folgenden
@@ -7,9 +11,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("VncLib")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Burkert")]
+[assembly: AssemblyCompany("VncLib")]
 [assembly: AssemblyProduct("VncLib")]
-[assembly: AssemblyCopyright("Copyright © Burkert 2017")]
+[assembly: AssemblyCopyright("Copyright 2017 The VncLib Authors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
