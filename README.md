@@ -17,41 +17,11 @@ Download the latest release, see the [Releases](https://github.com/patdhlk/vncli
 
 Then you can use it in your ViewModel or somewhere you want to display the remote desktop.
 
-```cs
-VncConnection vncConnection = new VncConnection(bindAddress, port, password);
-//create a RemoteDesktop instance
-RemoteDesktop remoteDesktop = new RemoteDesktop(vncConnection);
-//and, e.g. use it in your ViewModel;
-RemoteDesktopViewModel vm = new RemoteDesktopViewModel(remoteDesktop);
-VncRemoteDesktopView view = new VncRemoteDesktopView();
-view.DataContext = vm;
-return view;
-```
-
-In your ViewModel you can handle the desktop changed event:
-
-```cs
-public RemoteDesktopViewModel()
-{
-    _remoteDesktop.DesktopUpdated += RemoteDesktopOnDesktopUpdated;
-}
-
-private void RemoteDesktopOnDesktopUpdated(object sender, Bitmap bitmap)
-{
-    var bit = new Bitmap(bitmap);
-    Application.Current.Dispatcher.BeginInvoke(new Action(() => 
-    { 
-        Desktop = RemoteDesktop.ConvertBitMapToBitmapImage(bit); 
-    }));
-}
-```
-And in your View you have a Binding to the `Desktop` property
-
-A little demo will be added here in a few days.
+See the VncLib.Client project for usage information
 
 ## Built With
 
-* [zlib.NET](http://www.componentace.com/zlib_.NET.htm/) - ZLIB.NET is a 100% managed version of ZLIB compression library which implements deflate and inflate compression algorithms.
+* [zlib.NET](http://www.componentace.com/zlib_.NET.htm/) - ZLIB.NET is a 100% managed version of ZLIB compression library which implements deflate and inflate compression algorithms. (currently not used - will be used when we support zlib encoding)
 
 ## Contributing
 
