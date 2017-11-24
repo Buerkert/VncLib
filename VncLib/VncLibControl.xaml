@@ -1,8 +1,8 @@
 ﻿<!--
-    // Copyright 2017 The VncLib Authors. All rights reserved.
+// Copyright 2017 The VncLib Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-    -->
+-->
     
     <UserControl x:Class="VncLib.VncLibControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -17,8 +17,8 @@
              PreviewMouseMove="UserControl_PreviewMouseMove" PreviewMouseWheel="UserControl_PreviewMouseWheel"
              Focusable="True">
     <Grid>
-        <Image Name="image1" Stretch="None" />
-        <Ellipse Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="ellipse1" Stroke="Black" VerticalAlignment="Top" Width="32" Fill="Red" Visibility="Collapsed" />
-        <TextBox Name="tbInput" TextChanged="tbInsert_TextChanged" Background="#00000000" Cursor="Cross" />
+        <Image Name="VncImage" Stretch="None" />
+        <Ellipse Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="El" Stroke="Black" VerticalAlignment="Top" Width="32" Fill="Red" Visibility="Collapsed" />
+        <TextBox Name="FakeInput" TextChanged="tbInsert_TextChanged" Background="#00000000" Cursor="Cross" />
     </Grid>
 </UserControl>

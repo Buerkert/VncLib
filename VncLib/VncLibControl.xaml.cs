@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,27 +16,31 @@ namespace VncLib
     /// </summary>
     public partial class VncLibControl : UserControl
     {
-        private RfbClient _connection;
-        private WriteableBitmap _remoteScreen;
-        private DateTime _lastMouseMove = DateTime.Now;
-        private bool _limitMouseMove = true;
-        private WriteableBitmap _bitmap;
-        private readonly List<Key> _nonSpecialKeys = new List<Key>(); //A List of all Keys, that are handled by the transparent Textbox
-
-        private string _serverAddress = ""; //The Remoteserveraddress
-        private int _serverPort = 5900; //The Remoteserverport
-        private string _serverPassword = ""; //The Remoteserverpassword
-
         public delegate void UpdateScreenCallback(ScreenUpdateEventArgs newScreen);
 
-        public readonly DispatcherTimer TmrEllipse;
+        private readonly List<Key> _nonSpecialKeys = new List<Key>(); //A List of all Keys, that are handled by the transparent Textbox
+
         public readonly DispatcherTimer TmrClipboardCheck;
+
+        public readonly DispatcherTimer TmrEllipse;
         public readonly DispatcherTimer TmrScreen;
+        private WriteableBitmap _bitmap;
+        private RfbClient _connection;
+
+        bool _ignoreNextKey;
+
+        private int _lastClipboardHash; //To check, if the text has changed
+        private DateTime _lastMouseMove = DateTime.Now;
+
+        DateTime _lastUpdate = DateTime.MinValue;
+        private WriteableBitmap _remoteScreen;
+        
+        private VncLibUserCallback _vncLibUserCallback;
 
         public VncLibControl()
         {
             InitializeComponent();
-
+            ServerPort = 5900;
             CreateSpecialKeys();
 
             TmrEllipse = new DispatcherTimer();
@@ -52,8 +57,88 @@ namespace VncLib
             TmrScreen.Tick += tmrScreen_Tick;
             TmrScreen.Start();
 
-            this.Focus();
+            Focus();
         }
+
+        public static readonly DependencyProperty ServerAddressProperty = DependencyProperty.Register(
+            "ServerAddress", typeof(string), typeof(VncLibControl), new PropertyMetadata(default(string)));
+
+        public static readonly DependencyProperty ServerPasswordProperty = DependencyProperty.Register(
+            "ServerPassword", typeof(string), typeof(VncLibControl), new PropertyMetadata(default(string)));
+
+        public static readonly DependencyProperty ServerPortProperty = DependencyProperty.Register(
+            "ServerPort", typeof(int), typeof(VncLibControl), new PropertyMetadata(default(int)));
+
+        public static readonly DependencyProperty StartAndHoldConnectionProperty = DependencyProperty.Register(
+            "StartAndHoldConnection", typeof(bool), typeof(VncLibControl), new PropertyMetadata(default(bool)));
+
+        
+        public bool StartAndHoldConnection
+        {
+            get { return (bool) GetValue(StartAndHoldConnectionProperty); }
+            set
+            {
+                //if(value)
+                //    Connect();
+                SetValue(StartAndHoldConnectionProperty, value);
+            }
+        }
+
+        /// <summary>
+        /// The Port of the Remoteserver (Default: 5900)
+        /// </summary>
+        public int ServerPort
+        {
+            get { return (int) GetValue(ServerPortProperty); }
+            set
+            {
+                //if (value > 0 && value < 65536)
+                SetValue(ServerPortProperty, value);
+            }
+        }
+
+        public string ServerPassword
+        {
+            get { return (string) GetValue(ServerPasswordProperty); }
+            set
+            {
+                SetValue(ServerPasswordProperty, value);
+            }
+        }
+
+        /// <summary>
+        /// The IP or Hostname of the Remoteserver
+        /// </summary>
+        public string ServerAddress
+        {
+            get { return (string) GetValue(ServerAddressProperty); }
+            set
+            {
+                //Check if it is a possible correct server address
+                //var ipAddressRegex =
+                //    @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
+                //var hostnameRegex =
+                //    @"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$";
+
+                //var validateIp = new Regex(ipAddressRegex);
+                //var validateHost = new Regex(hostnameRegex);
+
+                //if (validateIp.IsMatch(value) && validateHost.IsMatch(value))
+                    SetValue(ServerAddressProperty, value);
+            }
+        }
+
+        public VncLibUserCallback VncLibUserCallback
+        {
+            get { return _vncLibUserCallback; }
+            set { _vncLibUserCallback = value; }
+        }
+        
+
+        /// <summary>
+        /// Should the interval of sending MouseMoveCommands to the VNC-Server be limited? Default=true
+        /// </summary>
+        public bool LimitMouseEvents { get; set; } = true;
 
         private void CreateSpecialKeys()
         {
@@ -124,7 +209,6 @@ namespace VncLib
             _nonSpecialKeys.Add(Key.NumPad9);
         }
 
-        DateTime _lastUpdate = DateTime.MinValue;
         void tmrScreen_Tick(object sender, EventArgs e)
         {
             if (_connection != null)
@@ -134,7 +218,7 @@ namespace VncLib
 
         void tmrEllipse_Tick(object sender, EventArgs e)
         {
-            ellipse1.Visibility = System.Windows.Visibility.Collapsed;
+            El.Visibility = Visibility.Collapsed;
             TmrEllipse.Stop();
         }
 
@@ -167,7 +251,7 @@ namespace VncLib
         {
             if (_connection != null && _connection.IsConnected)
             {
-                image1.Dispatcher.Invoke(new UpdateScreenCallback(UpdateImage), new object[] { e });
+                VncImage.Dispatcher.Invoke(new UpdateScreenCallback(UpdateImage), new object[] {e});
             }
         }
 
@@ -190,13 +274,14 @@ namespace VncLib
 
                 if (_bitmap == null)
                 {
-                    _bitmap = new WriteableBitmap(newScreens.Rects.First().Width, newScreens.Rects.First().Height, 96, 96, PixelFormats.Bgr32, null);
-                    image1.Source = _bitmap;
+                    _bitmap = new WriteableBitmap(newScreens.Rects.First().Width, newScreens.Rects.First().Height, 96,
+                        96, PixelFormats.Bgr32, null);
+                    VncImage.Source = _bitmap;
                 }
                 foreach (var newScreen in newScreens.Rects)
-                    _bitmap.WritePixels(new Int32Rect(0, 0, newScreen.Width, newScreen.Height), newScreen.PixelData, newScreen.Width * 4, newScreen.PosX, newScreen.PosY);
-                image1.InvalidateVisual();
-
+                    _bitmap.WritePixels(new Int32Rect(0, 0, newScreen.Width, newScreen.Height), newScreen.PixelData,
+                        newScreen.Width * 4, newScreen.PosX, newScreen.PosY);
+                VncImage.InvalidateVisual();
             }
             catch (Exception)
             {
@@ -204,8 +289,6 @@ namespace VncLib
                 throw;
             }
         }
-
-        bool _ignoreNextKey;
 
         /// <summary>
         /// Send Special Keys
@@ -216,7 +299,8 @@ namespace VncLib
         {
             if (_connection == null) return;
 
-            if (!_nonSpecialKeys.Contains(e.Key) || Keyboard.IsKeyDown(Key.LeftCtrl)) //If Control-Key is pressed, don't Send NonSpecialKey as a Sign
+            if (!_nonSpecialKeys.Contains(e.Key) || Keyboard.IsKeyDown(Key.LeftCtrl)
+            ) //If Control-Key is pressed, don't Send NonSpecialKey as a Sign
             {
                 if (Keyboard.IsKeyDown(Key.LeftCtrl))
                     _ignoreNextKey = true;
@@ -286,7 +370,7 @@ namespace VncLib
             else if (e.Delta < 0) //Wheel moved down
                 buttonValue = 16;
 
-            _connection.SendMouseClick((UInt16)e.GetPosition(this).X, (UInt16)e.GetPosition(this).Y, buttonValue);
+            _connection.SendMouseClick((UInt16) e.GetPosition(this).X, (UInt16) e.GetPosition(this).Y, buttonValue);
         }
 
         /// <summary>
@@ -296,10 +380,10 @@ namespace VncLib
         /// <param name="e"></param>
         private void tbInsert_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (tbInput.Text.Length > 0)
+            if (FakeInput.Text.Length > 0)
             {
-                var sign = tbInput.Text;
-                tbInput.Clear();
+                var sign = FakeInput.Text;
+                FakeInput.Clear();
 
                 _connection.SendSign(sign.ToCharArray()[0]);
                 _ignoreNextKey = true;
@@ -321,22 +405,25 @@ namespace VncLib
                 buttonValue += 2;
 
             //Don't send, if there is no MouseClick and a Event was triggered less then 1/5 second before.
-            if (_limitMouseMove && buttonValue == 0 && DateTime.Now.Subtract(_lastMouseMove).TotalMilliseconds < 200)
+            if (LimitMouseEvents && buttonValue == 0 && DateTime.Now.Subtract(_lastMouseMove).TotalMilliseconds < 200)
                 return;
 
             if (_connection != null && _connection.IsConnected)
             {
-                _connection.SendMouseClick(
-                     (UInt16)(e.GetPosition(tbInput).X / image1.ActualWidth * _connection.Properties.FramebufferWidth + 1),
-                     (UInt16)(e.GetPosition(tbInput).Y / image1.ActualHeight * _connection.Properties.FramebufferHeight + 1)
-                     , buttonValue);
+                var xPos = e.GetPosition(FakeInput).X / VncImage.ActualWidth *
+                           _connection.Properties.FramebufferWidth + 1;
+                var yPos = e.GetPosition(FakeInput).Y / VncImage.ActualHeight *
+                           _connection.Properties.FramebufferHeight + 1;
+
+                //call a callback method so the user can get the mouseposition
+                VncLibUserCallback?.Invoke(e, xPos, yPos);
+
+                _connection.SendMouseClick((UInt16) xPos, (UInt16) yPos, buttonValue);
             }
 
-            if (_limitMouseMove)
+            if (LimitMouseEvents)
                 _lastMouseMove = DateTime.Now;
         }
-
-        private int _lastClipboardHash; //To check, if the text has changed
 
         /// <summary>
         /// Checkinterval to check, if the Clipboard changed. Not a stylish way, but it works
@@ -352,89 +439,36 @@ namespace VncLib
             {
                 try
                 {
-                    if (Clipboard.GetText().Length < Int32.MaxValue) //normally it should be UInt32.MaxValue, but this is larger then .Length ever can be. So 2.1Million signs are maximum
+                    if (Clipboard.GetText().Length < Int32.MaxValue
+                    ) //normally it should be UInt32.MaxValue, but this is larger then .Length ever can be. So 2.1Million signs are maximum
                     {
-                        if (_lastClipboardHash != Clipboard.GetText().GetHashCode()) //If the Text has changed since last check
+                        if (_lastClipboardHash != Clipboard.GetText().GetHashCode()
+                        ) //If the Text has changed since last check
                         {
                             //_Connection.SendClientCutText(Clipboard.GetText());
                             _lastClipboardHash = Clipboard.GetText().GetHashCode(); //Set the new Hash
                         }
                     }
                 }
-                catch (Exception ) //
+                catch (Exception) //
                 {
-                    
                 }
             }
-        }
-
-        /// <summary>
-        /// The IP or Hostname of the Remoteserver
-        /// </summary>
-        public string ServerAddress
-        {
-            get { return _serverAddress; }
-            set
-            {
-                //Check if it is a possible correct server address
-                var ipAddressRegex = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
-                var hostnameRegex = @"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$";
-
-                var validateIp = new System.Text.RegularExpressions.Regex(ipAddressRegex);
-                var validateHost = new System.Text.RegularExpressions.Regex(hostnameRegex);
-
-                if (validateIp.IsMatch(value) && validateHost.IsMatch(value))
-                    _serverAddress = value;
-            }
-        }
-
-        /// <summary>
-        /// The Port of the Remoteserver (Default: 5900)
-        /// </summary>
-        public int ServerPort
-        {
-            get { return _serverPort; }
-            set
-            {
-                //Validate of port is valid
-                if (value > 0 && value < 65536)
-                {
-                    _serverPort = value;
-                }
-            }
-        }
-
-        /// <summary>
-        /// The Password to join the Server
-        /// </summary>
-        public string ServerPassword
-        {
-            get { return _serverPassword; }
-            set { _serverPassword = value; }
-        }
-
-        /// <summary>
-        /// Should the interval of sending MouseMoveCommands to the VNC-Server be limited? Default=true
-        /// </summary>
-        public bool LimitMouseEvents
-        {
-            get { return _limitMouseMove; }
-            set { _limitMouseMove = value; }
         }
 
         public void Connect()
         {
-            ConnectInternal(_serverAddress, _serverPort, _serverPassword);
+            ConnectInternal(ServerAddress, ServerPort, ServerPassword);
         }
 
         public void Connect(string serverAddress)
         {
-            ConnectInternal(serverAddress, _serverPort, "");
+            ConnectInternal(serverAddress, ServerPort, "");
         }
 
         public void Connect(string serverAddress, string serverPassword)
         {
-            ConnectInternal(serverAddress, _serverPort, serverPassword);
+            ConnectInternal(serverAddress, ServerPort, serverPassword);
         }
 
         public void Connect(string serverAddress, int serverPort, string serverPassword)

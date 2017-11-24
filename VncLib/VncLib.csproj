@@ -68,6 +68,7 @@
     <Compile Include="VncLibControl.xaml.cs">
       <DependentUpon>VncLibControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VncLibUserCallback.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="VncLibControl.xaml">
