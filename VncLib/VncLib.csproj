@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C68C228E-AD77-458A-BC96-7DA87C776998}</ProjectGuid>
+    <ProjectGuid>{D7DADE27-94C7-4F5B-8149-85C63C56A053}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VncLib</RootNamespace>
@@ -20,7 +20,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,14 +28,14 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,49 +45,35 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConnectEventArgs.cs" />
-    <Compile Include="EncodedRectangleFactory.cs" />
-    <Compile Include="Encodings\CopyRectRectangle.cs" />
-    <Compile Include="Encodings\CoRreRectangle.cs" />
-    <Compile Include="Encodings\CPixelReader.cs" />
-    <Compile Include="Encodings\EncodedRectangle.cs" />
-    <Compile Include="Encodings\HextileRectangle.cs" />
-    <Compile Include="Encodings\PixelReader.cs" />
-    <Compile Include="Encodings\PixelReader16.cs" />
-    <Compile Include="Encodings\PixelReader32.cs" />
-    <Compile Include="Encodings\PixelReader8.cs" />
-    <Compile Include="Encodings\RawRectangle.cs" />
-    <Compile Include="Encodings\RreRectangle.cs" />
-    <Compile Include="Encodings\ZrleRectangle.cs" />
-    <Compile Include="Framebuffer.cs" />
-    <Compile Include="IDesktopUpdater.cs" />
-    <Compile Include="KeyboardConstants.cs" />
-    <Compile Include="KeyboardHook.cs" />
-    <Compile Include="NativeMethods.cs" />
+    <Compile Include="ClientMessageType.cs" />
+    <Compile Include="ConnectionFailedEventArgs.cs" />
+    <Compile Include="ConnectionProperties.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="KeyCombination.cs" />
+    <Compile Include="LogMessageEventArgs.cs" />
+    <Compile Include="Logtype.cs" />
+    <Compile Include="NotSupportedServerMessageEventArgs.cs" />
+    <Compile Include="PixelFormat.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RemoteDesktop.cs" />
-    <Compile Include="Rfb.BigEndianBinaryReader.cs" />
-    <Compile Include="Rfb.BigEndianBinaryWriter.cs" />
-    <Compile Include="Rfb.cs" />
-    <Compile Include="Rfb.ZrleCompressedReader.cs" />
-    <Compile Include="VncClient.cs" />
-    <Compile Include="VncConnection.cs" />
-    <Compile Include="VncEventArgs.cs" />
-    <Compile Include="VncProtocolException.cs" />
-    <Compile Include="zlib.NET\Adler32.cs" />
-    <Compile Include="zlib.NET\Deflate.cs" />
-    <Compile Include="zlib.NET\InfBlocks.cs" />
-    <Compile Include="zlib.NET\InfCodes.cs" />
-    <Compile Include="zlib.NET\Inflate.cs" />
-    <Compile Include="zlib.NET\InfTree.cs" />
-    <Compile Include="zlib.NET\StaticTree.cs" />
-    <Compile Include="zlib.NET\SupportClass.cs" />
-    <Compile Include="zlib.NET\Tree.cs" />
-    <Compile Include="zlib.NET\ZInputStream.cs" />
-    <Compile Include="zlib.NET\Zlib.cs" />
-    <Compile Include="zlib.NET\ZOutputStream.cs" />
-    <Compile Include="zlib.NET\ZStream.cs" />
-    <Compile Include="zlib.NET\ZStreamException.cs" />
+    <Compile Include="RawRectangle.cs" />
+    <Compile Include="RfbClient.cs" />
+    <Compile Include="RfbEncoding.cs" />
+    <Compile Include="RfbEncodingDetails.cs" />
+    <Compile Include="RfbRectangle.cs" />
+    <Compile Include="ScreenResolutionChangeEventArgs.cs" />
+    <Compile Include="ScreenUpdateEventArgs.cs" />
+    <Compile Include="SecurityType.cs" />
+    <Compile Include="ServerCutTextEventArgs.cs" />
+    <Compile Include="ServerMessageType.cs" />
+    <Compile Include="VncLibControl.xaml.cs">
+      <DependentUpon>VncLibControl.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="VncLibControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
