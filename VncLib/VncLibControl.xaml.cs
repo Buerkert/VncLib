@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Color = System.Windows.Media.Color;
 
 namespace VncLib
 {
@@ -79,8 +82,6 @@ namespace VncLib
             get { return (bool) GetValue(StartAndHoldConnectionProperty); }
             set
             {
-                //if(value)
-                //    Connect();
                 SetValue(StartAndHoldConnectionProperty, value);
             }
         }
@@ -93,7 +94,6 @@ namespace VncLib
             get { return (int) GetValue(ServerPortProperty); }
             set
             {
-                //if (value > 0 && value < 65536)
                 SetValue(ServerPortProperty, value);
             }
         }
@@ -134,6 +134,22 @@ namespace VncLib
             get { return _vncLibUserCallback; }
             set { _vncLibUserCallback = value; }
         }
+        
+        public Bitmap Screenshot
+        {
+            get
+            {
+                Bitmap bmp = null;
+                using (var ms = new MemoryStream())
+                {
+                    BitmapEncoder enc = new BmpBitmapEncoder();
+                    enc.Frames.Add(BitmapFrame.Create(_bitmap));
+                    enc.Save(ms);
+                    bmp = new Bitmap(ms);
+                }
+                return bmp;
+            }
+        }        
         
 
         /// <summary>
@@ -440,8 +456,7 @@ namespace VncLib
             {
                 try
                 {
-                    if (Clipboard.GetText().Length < Int32.MaxValue
-                    ) //normally it should be UInt32.MaxValue, but this is larger then .Length ever can be. So 2.1Million signs are maximum
+                    if (Clipboard.GetText().Length < Int32.MaxValue) //normally it should be UInt32.MaxValue, but this is larger then .Length ever can be. So 2.1Million signs are maximum
                     {
                         if (_lastClipboardHash != Clipboard.GetText().GetHashCode()
                         ) //If the Text has changed since last check
