@@ -2166,6 +2166,59 @@ namespace VncLib
 
             Log(Logtype.Information, "Sending " + e.ToString());
 
+            keyCode = GetKeyCode(e);
+
+            if (keyCode == 0) //Was not a Special Sign
+            {
+                //Get the Keycode
+                var key = KeyInterop.VirtualKeyFromKey(e);
+
+                //Get the related Char
+                var enteredChar = System.Text.Encoding.ASCII.GetChars(Helper.ConvertToByteArray(key, true))[0];
+
+                //Offset for Keycode of pressed Sign
+                UInt32 offset = 0;
+
+                var rgExAz = new Regex("[A-Z]"); //for A-Z and a-z
+                var rgEx09 = new Regex("[0-9]"); //For 0-9
+
+                if (rgExAz.IsMatch(enteredChar.ToString())) //If it should be a small letter
+                {
+                    if (Keyboard.Modifiers != ModifierKeys.Shift)
+                    {
+                        key += 32;
+                        enteredChar = System.Text.Encoding.ASCII.GetChars(Helper.ConvertToByteArray(key, true))[0];
+                    }
+                }
+
+                else if (rgEx09.IsMatch(enteredChar.ToString()) && Keyboard.Modifiers != ModifierKeys.Shift) //It is a number
+                {
+                    //Do nothing
+                }
+
+                else
+                {
+                    offset = 0xFF00; //65280
+                }
+                keyCode = (UInt32)key + offset;
+            }
+
+            var data = new Byte[8];
+            data[0] = 4;
+
+            //Press or Release the Key
+            if (isDown == true)
+                data[1] = 1;
+            else
+                data[1] = 0;
+
+            Helper.ConvertToByteArray(keyCode, _properties.PxFormat.BigEndianFlag).CopyTo(data, 4);
+            _dataStream.Write(data, 0, data.Length);
+        }
+
+        private uint GetKeyCode(Key e)
+        {
+            uint keyCode = 0x00;
             switch (e)
             {
                 case Key.LeftShift:
@@ -2311,54 +2364,9 @@ namespace VncLib
                 case Key.NumPad9:
                     keyCode = 0x0000FFB9;
                     break;
+                
             }
-
-            if (keyCode == 0) //Was not a Special Sign
-            {
-                //Get the Keycode
-                var key = KeyInterop.VirtualKeyFromKey(e);
-
-                //Get the related Char
-                var enteredChar = System.Text.Encoding.ASCII.GetChars(Helper.ConvertToByteArray(key, true))[0];
-
-                //Offset for Keycode of pressed Sign
-                UInt32 offset = 0;
-
-                var rgExAz = new Regex("[A-Z]"); //for A-Z and a-z
-                var rgEx09 = new Regex("[0-9]"); //For 0-9
-
-                if (rgExAz.IsMatch(enteredChar.ToString())) //If it should be a small letter
-                {
-                    if (Keyboard.Modifiers != ModifierKeys.Shift)
-                    {
-                        key += 32;
-                        enteredChar = System.Text.Encoding.ASCII.GetChars(Helper.ConvertToByteArray(key, true))[0];
-                    }
-                }
-
-                else if (rgEx09.IsMatch(enteredChar.ToString()) && Keyboard.Modifiers != ModifierKeys.Shift) //It is a number
-                {
-                    //Do nothing
-                }
-
-                else
-                {
-                    offset = 0xFF00; //65280
-                }
-                keyCode = (UInt32)key + offset;
-            }
-
-            var data = new Byte[8];
-            data[0] = 4;
-
-            //Press or Release the Key
-            if (isDown == true)
-                data[1] = 1;
-            else
-                data[1] = 0;
-
-            Helper.ConvertToByteArray(keyCode, _properties.PxFormat.BigEndianFlag).CopyTo(data, 4);
-            _dataStream.Write(data, 0, data.Length);
+            return keyCode;
         }
 
         /// <summary>
