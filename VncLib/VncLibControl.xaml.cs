@@ -57,7 +57,7 @@ namespace VncLib
             TmrClipboardCheck.IsEnabled = true;
 
             TmrScreen = new DispatcherTimer();
-            TmrScreen.Interval = TimeSpan.FromMilliseconds(23);
+            TmrScreen.Interval = TimeSpan.FromMilliseconds(4);
             TmrScreen.Tick += tmrScreen_Tick;
             TmrScreen.Start();
 
@@ -495,6 +495,14 @@ namespace VncLib
         public void SendKeyCombination(KeyCombination keyComb)
         {
             _connection.SendKeyCombination(keyComb);
+        }
+
+        public void Disconnect()
+        {
+            TmrScreen?.Stop();
+            TmrEllipse?.Stop();
+            TmrClipboardCheck?.Stop();
+            _connection?.Disconnect();
         }
 
         public void UpdateScreen()

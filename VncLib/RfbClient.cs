@@ -25,6 +25,7 @@ namespace VncLib
         private UInt16[] _largestFrame = new UInt16[2] { 0, 0 }; //The largest known frame (x/Y)
         private BackgroundWorker _receiver; //The BackgroundWorkerthread for receiving Data
         private bool _isConnected; //Is the Client connected?
+        private bool _stop;
         private DateTime _lastReceive = DateTime.Now; //The Timestamp when the last Received Frame happend
         //private int _lastReceiveTimeout = 1000; //If no changes were made, a new Frame will be requested after x ms
         //private DispatcherTimer _LastReceiveTimer = new DispatcherTimer(); //The timer, that requests new Frames
@@ -1321,7 +1322,7 @@ namespace VncLib
             HandleSecurityType(Properties.Password.Length > 0 ? true : false); //Handle the SecurityType, based on the RfbVersion
             Thread.Sleep(23);
 
-            if (Authenticate() == true) //Authenticate at the Server with handled SecurityType
+            if (Authenticate()) //Authenticate at the Server with handled SecurityType
             {
                 if (SendClientSharedFlag() == false) return false; //Do ClientInit
                 Thread.Sleep(23);
@@ -1467,7 +1468,7 @@ namespace VncLib
                 //Create a TcpClient
                 _client = new TcpClient();
                 _client.Connect(server, port);
-
+                _stop = false;
                 //Get a client stream for reading and writing.
                 _dataStream = _client.GetStream();
                 return true;
@@ -1489,6 +1490,7 @@ namespace VncLib
             try
             {
                 // Close everything.
+                _stop = true;
                 _dataStream.Close();
                 _client.Close();
             }
@@ -1581,7 +1583,7 @@ namespace VncLib
                     //TODO: Choose a SecurtyType dynamically when more note None & VNC are implemented
 
                     //Send the chosen SecurityType to the Server
-                    if (hasPassword == true)
+                    if (hasPassword)
                     {
                         sendData = new Byte[1] { 2 }; //Choose VNC-Authentication
                         Log(Logtype.Debug, "VNC authorisation set by Client");
@@ -2083,6 +2085,8 @@ namespace VncLib
         /// <param name="height"></param>
         private void SendFramebufferUpdateRequest(bool isIncremental, UInt16 posX, UInt16 posY, UInt16 width, UInt16 height)
         {
+            if (_stop)
+                return;
             Log(Logtype.Debug, "Send SetFramebufferUpdateRequest with the following parameters: Incr:" + isIncremental + ", PosX:" + posX + ", PosY:" + posY + ", Width:" + width + ", Height:" + height);
 
             var data = new Byte[10];
@@ -2093,9 +2097,12 @@ namespace VncLib
             Helper.ConvertToByteArray(width, _properties.PxFormat.BigEndianFlag).CopyTo(data, 6);
             Helper.ConvertToByteArray(height, _properties.PxFormat.BigEndianFlag).CopyTo(data, 8);
 
-            _dataStream.Write(data, 0, data.Length);
-
-            _dataStream.Flush();
+            if (_dataStream != null)
+            {
+                _dataStream.Write(data, 0, data.Length);
+                _dataStream.Flush();
+            }
+            
         }
 
         /// <summary>
@@ -2164,7 +2171,7 @@ namespace VncLib
             data[0] = 4;
 
             //Press or Release the Key
-            if (isDown == true)
+            if (isDown)
                 data[1] = 1;
             else
                 data[1] = 0;
