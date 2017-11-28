@@ -6,7 +6,7 @@ using System;
 
 namespace VncLib
 {
-    internal class ConnectionFailedEventArgs : EventArgs
+    public class ConnectionFailedEventArgs : EventArgs
     {
         private string _ShortMessage = "";
         private string _FullMessage = "";

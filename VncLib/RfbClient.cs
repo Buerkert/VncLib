@@ -18,7 +18,7 @@ using VncLib.VncCommands;
 
 namespace VncLib
 {
-    internal class RfbClient : IRfbClient
+    public class RfbClient : IRfbClient
     {
         private ConnectionProperties _properties = new ConnectionProperties(); //Contains Properties of the Client
         private bool _disconnectionInProgress = false; //Flag for getting, if a Disconnection is in Progress

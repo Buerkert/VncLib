@@ -6,7 +6,7 @@ using System;
 
 namespace VncLib
 {
-    internal class ConnectionProperties
+    public class ConnectionProperties
     {
         private string _RfbServerVersion = "";
         private Version _RfbServerVersion2 = new Version();

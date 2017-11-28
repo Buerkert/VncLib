@@ -4,7 +4,7 @@
 
 namespace VncLib
 {
-    internal enum RfbEncoding
+    public enum RfbEncoding
     {
         ZRLE_ENCODING, //0
         Hextile_ENCODING,  //1

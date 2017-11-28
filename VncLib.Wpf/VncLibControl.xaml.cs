@@ -15,7 +15,7 @@ using System.Windows.Threading;
 using VncLib.VncCommands;
 using Color = System.Windows.Media.Color;
 
-namespace VncLib
+namespace VncLib.Wpf
 {
     /// <summary>
     /// Interaktionslogik für VncLibControl.xaml
@@ -40,7 +40,7 @@ namespace VncLib
 
         DateTime _lastUpdate = DateTime.MinValue;
         private WriteableBitmap _remoteScreen;
-        
+
         private VncLibUserCallback _vncLibUserCallback;
         private VncCommandPlayerCommandExecuted _commandExecuted;
         private VncCommandPlayerPreviewCommandExecute _previewCommandExecute;
@@ -78,20 +78,20 @@ namespace VncLib
 
         public static readonly DependencyProperty ServerPortProperty = DependencyProperty.Register(
             "ServerPort", typeof(int), typeof(VncLibControl), new PropertyMetadata(default(int)));
-        
+
 
         /// <summary>
         /// The Port of the Remoteserver (Default: 5900)
         /// </summary>
         public int ServerPort
         {
-            get => (int) GetValue(ServerPortProperty);
+            get => (int)GetValue(ServerPortProperty);
             set => SetValue(ServerPortProperty, value);
         }
 
         public string ServerPassword
         {
-            get => (string) GetValue(ServerPasswordProperty);
+            get => (string)GetValue(ServerPasswordProperty);
             set => SetValue(ServerPasswordProperty, value);
         }
 
@@ -100,7 +100,7 @@ namespace VncLib
         /// </summary>
         public string ServerAddress
         {
-            get => (string) GetValue(ServerAddressProperty);
+            get => (string)GetValue(ServerAddressProperty);
             set => SetValue(ServerAddressProperty, value);
         }
 
@@ -145,7 +145,7 @@ namespace VncLib
         /// </summary>
         public void EnableMouseCapturing()
         {
-            if(_connection != null)
+            if (_connection != null)
                 _connection.MouseActionCaptureEnabled = true;
         }
 
@@ -232,7 +232,7 @@ namespace VncLib
         public async Task PlayCommands(IEnumerable<IVncCommand> commands)
         {
             await _connection.Play(commands, PreviewCommandExecute, CommandExecuted);
-        } 
+        }
 
         void tmrScreen_Tick(object sender, EventArgs e)
         {
@@ -276,7 +276,7 @@ namespace VncLib
         {
             if (_connection != null && _connection.IsConnected)
             {
-                VncImage.Dispatcher.Invoke(new UpdateScreenCallback(UpdateImage), new object[] {e});
+                VncImage.Dispatcher.Invoke(new UpdateScreenCallback(UpdateImage), new object[] { e });
             }
         }
 
@@ -395,7 +395,7 @@ namespace VncLib
             else if (e.Delta < 0) //Wheel moved down
                 buttonValue = 16;
 
-            _connection.SendMouseClick((UInt16) e.GetPosition(this).X, (UInt16) e.GetPosition(this).Y, buttonValue);
+            _connection.SendMouseClick((UInt16)e.GetPosition(this).X, (UInt16)e.GetPosition(this).Y, buttonValue);
         }
 
         /// <summary>
@@ -443,7 +443,7 @@ namespace VncLib
                 //call a callback method so the user can get the mouseposition
                 VncLibUserCallback?.Invoke(e, xPos, yPos);
 
-                _connection.SendMouseClick((UInt16) xPos, (UInt16) yPos, buttonValue);
+                _connection.SendMouseClick((UInt16)xPos, (UInt16)yPos, buttonValue);
             }
 
             if (LimitMouseEvents)
@@ -451,7 +451,7 @@ namespace VncLib
         }
 
 
-        
+
 
         /// <summary>
         /// Checkinterval to check, if the Clipboard changed. Not a stylish way, but it works

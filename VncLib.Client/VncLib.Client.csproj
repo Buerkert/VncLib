@@ -96,6 +96,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\VncLib.Wpf\VncLib.Wpf.csproj">
+      <Project>{432a5791-7982-498a-b992-b8791af2ae20}</Project>
+      <Name>VncLib.Wpf</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VncLib\VncLib.csproj">
       <Project>{d7dade27-94c7-4f5b-8149-85c63c56a053}</Project>
       <Name>VncLib</Name>

@@ -6,7 +6,7 @@ using System;
 
 namespace VncLib
 {
-    internal class NotSupportedServerMessageEventArgs : EventArgs
+    public class NotSupportedServerMessageEventArgs : EventArgs
     {
         private string _MessageTypeName = "";
         private byte _MessageId;

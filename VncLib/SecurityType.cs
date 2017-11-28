@@ -4,7 +4,7 @@
 
 namespace VncLib
 {
-    internal enum SecurityType
+    public enum SecurityType
     {
         Unknown,
         Invalid, //0

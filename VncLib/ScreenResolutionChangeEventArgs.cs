@@ -6,7 +6,7 @@ using System;
 
 namespace VncLib
 {
-    internal class ScreenResolutionChangeEventArgs : EventArgs
+    public class ScreenResolutionChangeEventArgs : EventArgs
     {
         private int _ResX;
         private int _ResY;
