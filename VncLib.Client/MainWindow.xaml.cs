@@ -34,6 +34,7 @@ namespace VncLib.Client
         {
             VncLibControl.VncLibUserCallback = VncLibUserCallback;
             VncLibControl.Connect();
+            VncLibControl.EnableMouseCapturing();
         }
 
         private void VncLibUserCallback(MouseEventArgs mouseEventArgs, double x, double y)

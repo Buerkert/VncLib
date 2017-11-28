@@ -66,6 +66,14 @@
     <Compile Include="SecurityType.cs" />
     <Compile Include="ServerCutTextEventArgs.cs" />
     <Compile Include="ServerMessageType.cs" />
+    <Compile Include="VncCommands\Command.cs" />
+    <Compile Include="VncCommands\IRfbClient.cs" />
+    <Compile Include="VncCommands\IVncCommand.cs" />
+    <Compile Include="VncCommands\IVncDragCommand.cs" />
+    <Compile Include="VncCommands\LuaTableVncCommandConverter.cs" />
+    <Compile Include="VncCommands\VncCommand.cs" />
+    <Compile Include="VncCommands\VncDragCommand.cs" />
+    <Compile Include="VncCommands\VncPointCommand.cs" />
     <Compile Include="VncLibControl.xaml.cs">
       <DependentUpon>VncLibControl.xaml</DependentUpon>
     </Compile>

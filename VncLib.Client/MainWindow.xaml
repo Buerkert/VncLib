@@ -38,6 +38,6 @@
             <Label Content="Password:" Margin="0,-5,0,0"  />
             <TextBox Width="150" Text="{Binding ServerPassword}" />
         </Menu>
-        <vncLib:VncLibControl x:Name="VncLibControl" ServerAddress="{Binding ServerAddress}" ServerPassword="{Binding ServerPassword}" ServerPort="{Binding ServerPort}" StartAndHoldConnection="{Binding Connect}"/>
+        <vncLib:VncLibControl x:Name="VncLibControl" ServerAddress="{Binding ServerAddress}" ServerPassword="{Binding ServerPassword}" ServerPort="{Binding ServerPort}" />
     </StackPanel>
 </Window>

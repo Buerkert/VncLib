@@ -4,18 +4,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using VncLib.VncCommands;
 
 namespace VncLib
 {
-    internal class RfbClient
+    internal class RfbClient : IRfbClient
     {
         private ConnectionProperties _properties = new ConnectionProperties(); //Contains Properties of the Client
         private bool _disconnectionInProgress = false; //Flag for getting, if a Disconnection is in Progress
@@ -26,18 +29,23 @@ namespace VncLib
         private BackgroundWorker _receiver; //The BackgroundWorkerthread for receiving Data
         private bool _isConnected; //Is the Client connected?
         private bool _stop;
+        private UInt16 _previousX;
+        private UInt16 _previousY;
         private DateTime _lastReceive = DateTime.Now; //The Timestamp when the last Received Frame happend
         //private int _lastReceiveTimeout = 1000; //If no changes were made, a new Frame will be requested after x ms
         //private DispatcherTimer _LastReceiveTimer = new DispatcherTimer(); //The timer, that requests new Frames
 
         private Dictionary<char, UInt32> _keyCodes = new Dictionary<char, uint>(); //Dictionary for Key-Endcodings (see keys.csv)
-
         private TcpClient _client; //TCP-Client for Serverconnection
         private NetworkStream _dataStream; //The Stream to read/write Data
 
         private int _backBuffer2RawStride; //How many Bytes a Row have
         //public byte[] _BackBuffer2PixelData; //The Backbuffer as a Bytearray
         private System.Windows.Media.PixelFormat _backBuffer2PixelFormat = PixelFormats.Rgb24; //The Pixelformat of the Backbuffer
+
+        private IVncCommand _currentCommand;
+        private ObservableCollection<IVncCommand> _executedCommands;
+        private int _maxCountsExecutedCommands = 1000;
 
         /// <summary>
         /// Start connection on default port with no password
@@ -70,6 +78,17 @@ namespace VncLib
         {
             if (PrepareConnection(server, port, password) == false)
                 Log(Logtype.User, "Connection to the Server " + Properties.Server + " failed.");
+        }
+
+        public ObservableCollection<IVncCommand> ExecutedCommands
+        {
+            get
+            {
+                if(_executedCommands == null)
+                    _executedCommands = new ObservableCollection<IVncCommand>();
+                return _executedCommands;
+            }
+            set => _executedCommands = value;
         }
 
         private bool LoadKeyDictionary()
@@ -1447,13 +1466,13 @@ namespace VncLib
         public event NotSupportedServerMessageEventHandler NotSupportedServerMessage;
 
         public delegate void LogMessageEventHandler(object sender, LogMessageEventArgs e);
-        public event LogMessageEventHandler LogMessage;
+        //public event LogMessageEventHandler LogMessage;
 
         public delegate void ScreenUpdateEventHandler(object sender, ScreenUpdateEventArgs e);
         public event ScreenUpdateEventHandler ScreenUpdate;
 
         public delegate void ServerCutTextEventHandler(object sender, ServerCutTextEventArgs e);
-        public event ServerCutTextEventHandler ServerCutText;
+        //public event ServerCutTextEventHandler ServerCutText;
 
         /// <summary>
         /// Start the Connection to the VNC-Server
@@ -2110,7 +2129,7 @@ namespace VncLib
         /// </summary>
         /// <param name="pressedKey">The pressed Character</param>
         /// <param name="isKeyDown">Is the Key currently pressed</param>
-        private void SendKeyEvent(System.Windows.Input.KeyEventArgs e)
+        private void SendKeyEvent(KeyEventArgs e)
         {
             SendKeyEvent(e.Key, e.IsDown);
         }
@@ -2364,7 +2383,7 @@ namespace VncLib
             if (_isConnected == false) return;
 
             Log(Logtype.Debug, "Send Pointer: Button:" + buttonMask + ", PosX:" + posX + ", PosY:" + posY);
-
+            //Console.WriteLine("Send Pointer: Button:" + buttonMask + ", PosX:" + posX + ", PosY:" + posY);
             var data = new Byte[6];
             data[0] = 5;
             data[1] = buttonMask;
@@ -2372,6 +2391,91 @@ namespace VncLib
             Helper.ConvertToByteArray(posY, _properties.PxFormat.BigEndianFlag).CopyTo(data, 4);
 
             _dataStream.Write(data, 0, data.Length);
+
+            //update executed commands list
+            if(MouseActionCaptureEnabled)
+                UpdateExecutedCommands(posX, posY, buttonMask);
+        }
+
+        public bool MouseActionCaptureEnabled { get; set; }
+
+        private byte _previousMouseAction;
+        private void UpdateExecutedCommands(ushort posX, ushort posY, byte buttonMask)
+        {
+            if (ExecutedCommands.Count >= MaxCountsExecutedCommands)
+            {
+                ExecutedCommands.Clear();
+            }
+
+            switch (buttonMask)
+            {
+                case 0:
+                    if (_previousMouseAction == 1 && _currentCommand != null)
+                    {
+                        if (_currentCommand.Action == Command.Drag)
+                        {
+                            VncCommand temp = new VncDragCommand(){X = _currentCommand.X, Y = _currentCommand.Y, X2 = posX, Y2 = posY};
+                            ExecutedCommands.Add(temp);
+                            _currentCommand = null;
+                        }
+                        else if (_currentCommand.Action == Command.Click)
+                        {
+                            var temp = _currentCommand;
+                            ExecutedCommands.Add( temp);
+                            _currentCommand = null;
+                        }
+                    }
+                    break;
+                case 1:
+                    if (_previousMouseAction == 0) // klick
+                    {
+                        _currentCommand = new VncPointCommand(){Action = Command.Click, X = posX, Y = posY};
+                    }
+                    else if (_previousMouseAction == 1 && _currentCommand.Action != Command.Drag && (_previousX != posX || _previousY != posY)) //drag
+                    {
+                        _currentCommand.Action = Command.Drag;
+                    }
+                    break;
+                case 2:
+                case 4:
+                    if (_previousMouseAction == 0)
+                    {
+                        VncCommand temp = new VncCommand(){Action = Command.Home};
+                        ExecutedCommands.Add(temp);
+                    }
+                    break;
+                default:
+                    break;
+
+            }
+
+            _previousMouseAction = buttonMask;
+            _previousX = posX;
+            _previousY = posY;
+        }
+
+        public Task Play(IEnumerable<IVncCommand> commands, VncCommandPlayerPreviewCommandExecute preview,
+            VncCommandPlayerCommandExecuted executed)
+        {
+            return Task.Run(async () =>
+            {
+                foreach (var cmd in commands)
+                {
+                    await Task.Run(() => preview?.Invoke(this, cmd));
+
+                    await cmd.Execute(this);
+
+                    await Task.Run(() => executed?.Invoke(this, cmd));
+
+                    await Task.Delay(500);
+                }
+            });
+        }
+
+        public int MaxCountsExecutedCommands
+        {
+            get => _maxCountsExecutedCommands;
+            set => _maxCountsExecutedCommands = value;
         }
 
         /// <summary>
@@ -2628,7 +2732,7 @@ namespace VncLib
         /// Send a pressed Key to the Server (i.e. Enter, Tab, Cntr, Alt etc.)
         /// </summary>
         /// <param name="e"></param>
-        public void SendKey(System.Windows.Input.KeyEventArgs e)
+        public void SendKey(KeyEventArgs e)
         {
             SendKeyEvent(e);
         }
@@ -2715,7 +2819,7 @@ namespace VncLib
             if (aKey2 != default(Key)) SendKeyEvent(aKey2, true);
             if (aKey3 != default(Key)) SendKeyEvent(aKey3, true);
 
-            System.Threading.Thread.Sleep(100);
+            Thread.Sleep(100);
 
             if (aKey3 != default(Key)) SendKeyEvent(aKey3, false);
             if (aKey2 != default(Key)) SendKeyEvent(aKey2, false);
@@ -2724,13 +2828,10 @@ namespace VncLib
 
         public ConnectionProperties Properties
         {
-            get { return _properties; }
-            set { _properties = value; }
+            get => _properties;
+            set => _properties = value;
         }
 
-        public bool IsConnected
-        {
-            get { return _isConnected; }
-        }
+        public bool IsConnected => _isConnected;
     }
 }

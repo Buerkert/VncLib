@@ -3,9 +3,13 @@
 // license that can be found in the LICENSE file.
 
 using System.Windows.Input;
+using VncLib.VncCommands;
 
 namespace VncLib
 {
     public delegate void VncLibUserCallback(MouseEventArgs e, double x, double y);
 
+    public delegate void VncCommandPlayerPreviewCommandExecute(object sender, IVncCommand command);
+
+    public delegate void VncCommandPlayerCommandExecuted(object sender, IVncCommand command);
 }

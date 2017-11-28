@@ -19,14 +19,14 @@ namespace VncLib
 
         public int ResX
         {
-            get { return _ResX; }
-            set { _ResX = value; }
+            get => _ResX;
+            set => _ResX = value;
         }
 
         public int ResY
         {
-            get { return _ResY; }
-            set { _ResY = value; }
+            get => _ResY;
+            set => _ResY = value;
         }
     }
 }

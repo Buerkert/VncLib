@@ -21,20 +21,20 @@ namespace VncLib
 
         public string ShortMessage
         {
-            get { return _ShortMessage; }
-            set { _ShortMessage = value; }
+            get => _ShortMessage;
+            set => _ShortMessage = value;
         }
 
         public string FullMessage
         {
-            get { return _FullMessage; }
-            set { _FullMessage = value; }
+            get => _FullMessage;
+            set => _FullMessage = value;
         }
 
         public int ErrorNumber
         {
-            get { return _ErrorNumber; }
-            set { _ErrorNumber = value; }
+            get => _ErrorNumber;
+            set => _ErrorNumber = value;
         }
     }
 }

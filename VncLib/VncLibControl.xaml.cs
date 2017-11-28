@@ -1,15 +1,18 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using VncLib.VncCommands;
 using Color = System.Windows.Media.Color;
 
 namespace VncLib
@@ -30,7 +33,7 @@ namespace VncLib
         private WriteableBitmap _bitmap;
         private RfbClient _connection;
 
-        bool _ignoreNextKey;
+        private bool _ignoreNextKey;
 
         private int _lastClipboardHash; //To check, if the text has changed
         private DateTime _lastMouseMove = DateTime.Now;
@@ -39,6 +42,8 @@ namespace VncLib
         private WriteableBitmap _remoteScreen;
         
         private VncLibUserCallback _vncLibUserCallback;
+        private VncCommandPlayerCommandExecuted _commandExecuted;
+        private VncCommandPlayerPreviewCommandExecute _previewCommandExecute;
 
         public VncLibControl()
         {
@@ -51,10 +56,11 @@ namespace VncLib
             TmrEllipse.Interval = TimeSpan.FromMilliseconds(200);
             TmrEllipse.Tick += tmrEllipse_Tick;
 
-            TmrClipboardCheck = new DispatcherTimer();
-            TmrClipboardCheck.Interval = TimeSpan.FromMilliseconds(500);
-            TmrClipboardCheck.Tick += tmrClipboard_Tick;
-            TmrClipboardCheck.IsEnabled = true;
+            //TODO
+            //TmrClipboardCheck = new DispatcherTimer();
+            //TmrClipboardCheck.Interval = TimeSpan.FromMilliseconds(500);
+            //TmrClipboardCheck.Tick += tmrClipboard_Tick;
+            //TmrClipboardCheck.IsEnabled = true;
 
             TmrScreen = new DispatcherTimer();
             TmrScreen.Interval = TimeSpan.FromMilliseconds(4);
@@ -72,39 +78,21 @@ namespace VncLib
 
         public static readonly DependencyProperty ServerPortProperty = DependencyProperty.Register(
             "ServerPort", typeof(int), typeof(VncLibControl), new PropertyMetadata(default(int)));
-
-        public static readonly DependencyProperty StartAndHoldConnectionProperty = DependencyProperty.Register(
-            "StartAndHoldConnection", typeof(bool), typeof(VncLibControl), new PropertyMetadata(default(bool)));
-
         
-        public bool StartAndHoldConnection
-        {
-            get { return (bool) GetValue(StartAndHoldConnectionProperty); }
-            set
-            {
-                SetValue(StartAndHoldConnectionProperty, value);
-            }
-        }
 
         /// <summary>
         /// The Port of the Remoteserver (Default: 5900)
         /// </summary>
         public int ServerPort
         {
-            get { return (int) GetValue(ServerPortProperty); }
-            set
-            {
-                SetValue(ServerPortProperty, value);
-            }
+            get => (int) GetValue(ServerPortProperty);
+            set => SetValue(ServerPortProperty, value);
         }
 
         public string ServerPassword
         {
-            get { return (string) GetValue(ServerPasswordProperty); }
-            set
-            {
-                SetValue(ServerPasswordProperty, value);
-            }
+            get => (string) GetValue(ServerPasswordProperty);
+            set => SetValue(ServerPasswordProperty, value);
         }
 
         /// <summary>
@@ -112,45 +100,60 @@ namespace VncLib
         /// </summary>
         public string ServerAddress
         {
-            get { return (string) GetValue(ServerAddressProperty); }
-            set
-            {
-                //Check if it is a possible correct server address
-                //var ipAddressRegex =
-                //    @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
-                //var hostnameRegex =
-                //    @"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$";
-
-                //var validateIp = new Regex(ipAddressRegex);
-                //var validateHost = new Regex(hostnameRegex);
-
-                //if (validateIp.IsMatch(value) && validateHost.IsMatch(value))
-                    SetValue(ServerAddressProperty, value);
-            }
+            get => (string) GetValue(ServerAddressProperty);
+            set => SetValue(ServerAddressProperty, value);
         }
 
         public VncLibUserCallback VncLibUserCallback
         {
-            get { return _vncLibUserCallback; }
-            set { _vncLibUserCallback = value; }
+            get => _vncLibUserCallback;
+            set => _vncLibUserCallback = value;
         }
-        
+
+        public VncCommandPlayerCommandExecuted CommandExecuted
+        {
+            get => _commandExecuted;
+            set => _commandExecuted = value;
+        }
+
+        public VncCommandPlayerPreviewCommandExecute PreviewCommandExecute
+        {
+            get => _previewCommandExecute;
+            set => _previewCommandExecute = value;
+        }
+
         public Bitmap Screenshot
         {
             get
             {
-                Bitmap bmp = null;
+                Bitmap bmp;
                 using (var ms = new MemoryStream())
                 {
                     BitmapEncoder enc = new BmpBitmapEncoder();
-                    enc.Frames.Add(BitmapFrame.Create(_bitmap));
+                    enc.Frames.Add(BitmapFrame.Create(_bitmap.Clone()));
                     enc.Save(ms);
                     bmp = new Bitmap(ms);
                 }
-                return bmp;
+                return new Bitmap(bmp);
             }
-        }        
-        
+        }
+
+        public ObservableCollection<IVncCommand> ExecutedCommands => _connection.ExecutedCommands;
+
+        /// <summary>
+        /// enable the mouse action and position capturing - call after calling Connect()
+        /// </summary>
+        public void EnableMouseCapturing()
+        {
+            if(_connection != null)
+                _connection.MouseActionCaptureEnabled = true;
+        }
+
+        public void DisableMouseCapturing()
+        {
+            if (_connection != null)
+                _connection.MouseActionCaptureEnabled = false;
+        }
 
         /// <summary>
         /// Should the interval of sending MouseMoveCommands to the VNC-Server be limited? Default=true
@@ -226,6 +229,11 @@ namespace VncLib
             _nonSpecialKeys.Add(Key.NumPad9);
         }
 
+        public async Task PlayCommands(IEnumerable<IVncCommand> commands)
+        {
+            await _connection.Play(commands, PreviewCommandExecute, CommandExecuted);
+        } 
+
         void tmrScreen_Tick(object sender, EventArgs e)
         {
             if (_connection != null)
@@ -247,7 +255,7 @@ namespace VncLib
             //Is Triggered when the Screen is beeing updated
             _connection.ScreenUpdate += new RfbClient.ScreenUpdateEventHandler(Connection_ScreenUpdate);
             //Is Triggered, when the RfbClient sends a Log-Event
-            _connection.LogMessage += new RfbClient.LogMessageEventHandler(Connection_LogMessage);
+            //_connection.LogMessage += new RfbClient.LogMessageEventHandler(Connection_LogMessage);
 
             _connection.StartConnection();
         }
@@ -441,6 +449,9 @@ namespace VncLib
             if (LimitMouseEvents)
                 _lastMouseMove = DateTime.Now;
         }
+
+
+        
 
         /// <summary>
         /// Checkinterval to check, if the Clipboard changed. Not a stylish way, but it works

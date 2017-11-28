@@ -20,7 +20,7 @@ namespace VncLib.Client
 
         public string ServerAddress
         {
-            get { return _serverAddress; }
+            get => _serverAddress;
             set
             {
                 _serverAddress = value;
@@ -30,7 +30,7 @@ namespace VncLib.Client
 
         public string ServerPassword
         {
-            get { return _serverPassword; }
+            get => _serverPassword;
             set
             {
                 _serverPassword = value;
@@ -40,7 +40,7 @@ namespace VncLib.Client
 
         public int Port
         {
-            get { return _port; }
+            get => _port;
             set
             {
                 _port = value;
@@ -50,7 +50,7 @@ namespace VncLib.Client
 
         public bool Connect
         {
-            get { return _connect; }
+            get => _connect;
             set
             {
                 _connect = value;
@@ -60,7 +60,7 @@ namespace VncLib.Client
 
         public string ServerPort
         {
-            get { return _serverPort; }
+            get => _serverPort;
             set
             {
                 _serverPort = value;

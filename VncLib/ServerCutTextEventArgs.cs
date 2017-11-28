@@ -17,8 +17,8 @@ namespace VncLib
 
         public string Text
         {
-            get { return _Text; }
-            set { _Text = value; }
+            get => _Text;
+            set => _Text = value;
         }
     }
 }

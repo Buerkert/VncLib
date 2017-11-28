@@ -39,7 +39,7 @@ namespace VncLib
 
         public string RfbServerVersion
         {
-            get { return _RfbServerVersion; }
+            get => _RfbServerVersion;
             set
             {
                 _RfbServerVersion = value;
@@ -51,14 +51,11 @@ namespace VncLib
             }
         }
 
-        public Version RfbServerVersion2
-        {
-            get { return _RfbServerVersion2; }
-        }
+        public Version RfbServerVersion2 => _RfbServerVersion2;
 
         public string RfbClientVersion
         {
-            get { return _RfbClientVersion; }
+            get => _RfbClientVersion;
             set
             {
                 _RfbClientVersion = value;
@@ -70,69 +67,66 @@ namespace VncLib
             }
         }
 
-        public Version RfbClientVersion2
-        {
-            get { return _RfbClientVersion2; }
-        }
+        public Version RfbClientVersion2 => _RfbClientVersion2;
 
         public SecurityType RfbSecurityType
         {
-            get { return _RfbSecurityType; }
-            set { _RfbSecurityType = value; }
+            get => _RfbSecurityType;
+            set => _RfbSecurityType = value;
         }
 
         public UInt16 FramebufferWidth
         {
-            get { return _FramebufferWidth; }
-            set { _FramebufferWidth = value; }
+            get => _FramebufferWidth;
+            set => _FramebufferWidth = value;
         }
 
         public UInt16 FramebufferHeight
         {
-            get { return _FramebufferHeight; }
-            set { _FramebufferHeight = value; }
+            get => _FramebufferHeight;
+            set => _FramebufferHeight = value;
         }
 
         public PixelFormat PxFormat
         {
-            get { return _PxFormat; }
-            set { _PxFormat = value; }
+            get => _PxFormat;
+            set => _PxFormat = value;
         }
 
         public string ConnectionName
         {
-            get { return _ConnectionName; }
-            set { _ConnectionName = value; }
+            get => _ConnectionName;
+            set => _ConnectionName = value;
         }
 
         public RfbEncoding EncodingType
         {
-            get { return _EncodingType; }
-            set { _EncodingType = value; }
+            get => _EncodingType;
+            set => _EncodingType = value;
         }
 
         public string Server
         {
-            get { return _Server; }
-            set { _Server = value; }
+            get => _Server;
+            set => _Server = value;
         }
 
         public int Port
         {
-            get { return _Port; }
-            set { _Port = value; }
+            get => _Port;
+            set => _Port = value;
         }
 
         public string Password
         {
-            get { return _Password; }
-            set { _Password = value; }
+            get => _Password;
+            set => _Password = value;
         }
 
         public bool SharedFlag
         {
-            get { return _SharedFlag; }
-            set { _SharedFlag = value; }
+            get => _SharedFlag;
+            set => _SharedFlag = value;
         }
     }
 }

@@ -25,20 +25,20 @@ namespace VncLib
 
         public string LogMessage
         {
-            get { return _logMessage; }
-            set { _logMessage = value; }
+            get => _logMessage;
+            set => _logMessage = value;
         }
 
         public DateTime LogTime
         {
-            get { return _logTime; }
-            set { _logTime = value; }
+            get => _logTime;
+            set => _logTime = value;
         }
 
         public Logtype LogType
         {
-            get { return _logType; }
-            set { _logType = value; }
+            get => _logType;
+            set => _logType = value;
         }
     }
 }

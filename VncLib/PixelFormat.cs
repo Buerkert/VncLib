@@ -64,67 +64,67 @@ namespace VncLib
 
         public Byte BitsPerPixel
         {
-            get { return _BitsPerPixel; }
-            set { _BitsPerPixel = value; }
+            get => _BitsPerPixel;
+            set => _BitsPerPixel = value;
         }
 
         public Byte Depth
         {
-            get { return _Depth; }
-            set { _Depth = value; }
+            get => _Depth;
+            set => _Depth = value;
         }
 
         public Boolean BigEndianFlag
         {
-            get { return _BigEndianFlag; }
-            set { _BigEndianFlag = value; }
+            get => _BigEndianFlag;
+            set => _BigEndianFlag = value;
         }
 
         public Boolean TrueColourFlag
         {
-            get { return _TrueColourFlag; }
-            set { _TrueColourFlag = value; }
+            get => _TrueColourFlag;
+            set => _TrueColourFlag = value;
         }
 
         public UInt16 RedMax
         {
-            get { return _RedMax; }
-            set { _RedMax = value; }
+            get => _RedMax;
+            set => _RedMax = value;
         }
 
         public UInt16 GreenMax
         {
-            get { return _GreenMax; }
-            set { _GreenMax = value; }
+            get => _GreenMax;
+            set => _GreenMax = value;
         }
 
         public UInt16 BlueMax
         {
-            get { return _BlueMax; }
-            set { _BlueMax = value; }
+            get => _BlueMax;
+            set => _BlueMax = value;
         }
 
         public Byte RedShift
         {
-            get { return _RedShift; }
-            set { _RedShift = value; }
+            get => _RedShift;
+            set => _RedShift = value;
         }
 
         public Byte GreenShift
         {
-            get { return _GreenShift; }
-            set { _GreenShift = value; }
+            get => _GreenShift;
+            set => _GreenShift = value;
         }
 
         public Byte BlueShift
         {
-            get { return _BlueShift; }
-            set { _BlueShift = value; }
+            get => _BlueShift;
+            set => _BlueShift = value;
         }
 
         public Byte[] Padding
         {
-            get { return _Padding; }
+            get => _Padding;
             set
             {
                 if (value.Length == 3)

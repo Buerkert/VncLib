@@ -24,14 +24,14 @@ namespace VncLib
 
         public string MessageTypeName
         {
-            get { return _MessageTypeName; }
-            set { _MessageTypeName = value; }
+            get => _MessageTypeName;
+            set => _MessageTypeName = value;
         }
 
         public byte MessageId
         {
-            get { return _MessageId; }
-            set { _MessageId = value; }
+            get => _MessageId;
+            set => _MessageId = value;
         }
     }
 }
