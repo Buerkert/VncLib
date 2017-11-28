@@ -2,7 +2,7 @@
 
 VncLib is an open source project.
 
-It is the work of hundreds of contributors. We appreciate your help!
+It is the work of many contributors. We appreciate your help!
 
 ## Filing issues
 
