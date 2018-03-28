@@ -32,6 +32,9 @@ namespace VncLib
         private UInt16 _previousX;
         private UInt16 _previousY;
         private DateTime _lastReceive = DateTime.Now; //The Timestamp when the last Received Frame happend
+
+        private Thread _receiverThread;
+        private Channel<object> _dataChannel = new Channel<object>();
         //private int _lastReceiveTimeout = 1000; //If no changes were made, a new Frame will be requested after x ms
         //private DispatcherTimer _LastReceiveTimer = new DispatcherTimer(); //The timer, that requests new Frames
 
@@ -1421,9 +1424,17 @@ namespace VncLib
         void _Receiver_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             //Create Thread for running Backbuffer-Update
-            var th = new Thread(Receiver_ProgressThread);
-            th.Priority = ThreadPriority.BelowNormal;
-            th.Start(e.UserState);
+            if (_receiverThread == null)
+            {
+                _receiverThread = new Thread(Receiver_ProgressThread);
+                _receiverThread.Priority = ThreadPriority.BelowNormal;
+                _receiverThread.Start(e.UserState);
+            }
+            else
+            {
+                _dataChannel.Send(e.UserState);
+            }
+            
         }
 
         /// <summary>
@@ -1432,19 +1443,26 @@ namespace VncLib
         /// <param name="objChangeData"></param>
         void Receiver_ProgressThread(object objChangeData)
         {
-            try
+            for (;;)
             {
-                var changeDatas = (List<RfbRectangle>)objChangeData; //Parse Update-Data
-
-                ScreenUpdate?.Invoke(this, new ScreenUpdateEventArgs()
+                try
                 {
-                    Rects = changeDatas,
-                });
-                
-            }
-            catch (Exception ea)
-            {
-                Log(Logtype.Error, ea.ToString());
+                    objChangeData = _dataChannel.Receive();
+                    var changeDatas = (List<RfbRectangle>)objChangeData; //Parse Update-Data
+
+                    ScreenUpdate?.Invoke(this, new ScreenUpdateEventArgs()
+                    {
+                        Rects = changeDatas,
+                    });
+
+                }
+                catch (Exception ea)
+                {
+                    Log(Logtype.Error, ea.ToString());
+                }
+
+                if (_stop)
+                    break;
             }
         }
 
@@ -1508,10 +1526,12 @@ namespace VncLib
         {
             try
             {
+                _disconnectionInProgress = true;
                 // Close everything.
                 _stop = true;
                 _dataStream.Close();
                 _client.Close();
+                _receiverThread.Abort();
             }
             catch (SocketException ea)
             {
@@ -2574,7 +2594,7 @@ namespace VncLib
                         _properties.EncodingType = RfbEncoding.Raw_ENCODING;
 
                         var myData = new Byte[width * height * 4];
-                        Console.WriteLine("!!!!! W: {0}", width);
+                        //Console.WriteLine("!!!!! W: {0}", width);
 
                         var readCount = 0;
 
@@ -2594,7 +2614,7 @@ namespace VncLib
                         //Set a new Backbuffersize
                         //_BackBuffer2PixelData = new byte[width*height*4];
 
-                        Console.WriteLine("!!!!! INIT W: {0}", width);
+                        //Console.WriteLine("!!!!! INIT W: {0}", width);
                         //Request new Screen
                         SendFramebufferUpdateRequest(true, 0, 0, width, height);
                         break;

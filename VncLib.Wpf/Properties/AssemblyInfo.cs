@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("VncLib")]
 [assembly: AssemblyProduct("VncLib.Wpf")]
-[assembly: AssemblyCopyright("Copyright 2017 The VncLib Authors")]
+[assembly: AssemblyCopyright("Copyright 2018 The VncLib Authors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

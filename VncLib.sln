@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VncLib.Client", "VncLib.Cli
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VncLib.Wpf", "VncLib.Wpf\VncLib.Wpf.csproj", "{432A5791-7982-498A-B992-B8791AF2AE20}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VncLib.Console.Client", "VncLib.Console.Client\VncLib.Console.Client.csproj", "{49D1A38B-22D8-451E-802E-967A766B2C49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{432A5791-7982-498A-B992-B8791AF2AE20}.Release|x64.Build.0 = Release|Any CPU
 		{432A5791-7982-498A-B992-B8791AF2AE20}.Release|x86.ActiveCfg = Release|Any CPU
 		{432A5791-7982-498A-B992-B8791AF2AE20}.Release|x86.Build.0 = Release|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Debug|x64.Build.0 = Debug|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Debug|x86.Build.0 = Debug|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Release|x64.ActiveCfg = Release|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Release|x64.Build.0 = Release|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Release|x86.ActiveCfg = Release|Any CPU
+		{49D1A38B-22D8-451E-802E-967A766B2C49}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

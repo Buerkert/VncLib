@@ -11,11 +11,12 @@
         xmlns:vncLibWpf="clr-namespace:VncLib.Wpf;assembly=VncLib.Wpf"
         mc:Ignorable="d"
         SizeToContent="WidthAndHeight"
-        Title="MainWindow" MinHeight="350" Width="525">
+        Title="MainWindow" MinHeight="350" Width="525"
+        Closing="MainWindow_OnClosing">
     <StackPanel>
         <Menu Height="23" Name="menu1" VerticalAlignment="Top">
             <MenuItem Header="Connect">
-                <MenuItem Header="Connect to server" Name="miConnect" ></MenuItem>
+                <MenuItem Header="Connect to server" Name="miConnect" Click="OnContentChanged" ></MenuItem>
                 <!--<MenuItem Header="Refresh Screen" Name="miRefresh" Click="miRefresh_Click"></MenuItem>-->
             </MenuItem>
             <!--<MenuItem Header="Send Special Keys">

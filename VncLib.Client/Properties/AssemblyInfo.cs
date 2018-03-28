@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("VncLib")]
 [assembly: AssemblyProduct("VncLib.Client")]
-[assembly: AssemblyCopyright("Copyright 2017 The VncLib Authors")]
+[assembly: AssemblyCopyright("Copyright 2018 The VncLib Authors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

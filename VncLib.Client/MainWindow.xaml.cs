@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,12 +35,18 @@ namespace VncLib.Client
         {
             VncLibControl.VncLibUserCallback = VncLibUserCallback;
             VncLibControl.Connect();
+            VncLibControl.UpdateScreen();
             VncLibControl.EnableMouseCapturing();
         }
 
         private void VncLibUserCallback(MouseEventArgs mouseEventArgs, double x, double y)
         {
             Console.WriteLine($"X: {x} Y: {y}");
+        }
+
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            VncLibControl.Disconnect();
         }
     }
 }

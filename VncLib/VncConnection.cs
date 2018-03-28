@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using VncLib.VncCommands;
 using Color = System.Windows.Media.Color;
+using Timer = System.Timers.Timer;
 
 namespace VncLib
 {
@@ -25,17 +27,18 @@ namespace VncLib
         public readonly DispatcherTimer TmrClipboardCheck;
 
         public readonly DispatcherTimer TmrEllipse;
-        public readonly DispatcherTimer TmrScreen;
+        public readonly Timer TmrScreen;
         private WriteableBitmap _bitmap;
         private RfbClient _connection;
 
-        private bool _ignoreNextKey;
-
+        private readonly object _lockObj = new object();
+        //private bool _ignoreNextKey;
+        //private byte[] _screenData;
+        private Bitmap _screen;
         private int _lastClipboardHash; //To check, if the text has changed
         private DateTime _lastMouseMove = DateTime.Now;
 
-        DateTime _lastUpdate = DateTime.MinValue;
-        private WriteableBitmap _remoteScreen;
+        //DateTime _lastUpdate = DateTime.MinValue;
 
         private VncLibUserCallback _vncLibUserCallback;
         private VncCommandPlayerCommandExecuted _commandExecuted;
@@ -56,10 +59,8 @@ namespace VncLib
             //TmrClipboardCheck.Tick += tmrClipboard_Tick;
             //TmrClipboardCheck.IsEnabled = true;
 
-            TmrScreen = new DispatcherTimer();
-            TmrScreen.Interval = TimeSpan.FromMilliseconds(4);
-            TmrScreen.Tick += tmrScreen_Tick;
-            TmrScreen.Start();
+            TmrScreen = new Timer(UpdateInterval);
+            TmrScreen.Elapsed += tmrScreen_Tick;
         }
 
         /// <summary>
@@ -73,6 +74,13 @@ namespace VncLib
         /// The IP or Hostname of the Remoteserver
         /// </summary>
         public string ServerAddress { get; set; }
+
+        /// <summary>
+        /// Update interval in milliseconds, default = 40
+        /// </summary>
+        public int UpdateInterval { get; set; } = 40;
+
+        public bool AutoUpdate { get; set; }
 
         public VncLibUserCallback VncLibUserCallback
         {
@@ -96,14 +104,13 @@ namespace VncLib
         {
             get
             {
-                Bitmap bmp;
-                using (var ms = new MemoryStream())
-                {
-                    BitmapEncoder enc = new BmpBitmapEncoder();
-                    enc.Frames.Add(BitmapFrame.Create(_bitmap.Clone()));
-                    enc.Save(ms);
-                    bmp = new Bitmap(ms);
-                }
+                if(_connection == null)
+                    throw new InvalidOperationException("Can't get a screenshot without a connection");
+
+                if (_screen == null)
+                    return null;
+
+                Bitmap bmp = _screen;
                 return new Bitmap(bmp);
             }
         }
@@ -133,9 +140,8 @@ namespace VncLib
 
         void tmrScreen_Tick(object sender, EventArgs e)
         {
-            if (_connection != null)
-                if (DateTime.Now.Subtract(_lastUpdate).TotalMilliseconds > 42)
-                    _connection.RefreshScreen();
+            if(AutoUpdate)
+                _connection?.RefreshScreen();
         }
 
         void tmrEllipse_Tick(object sender, EventArgs e)
@@ -154,13 +160,19 @@ namespace VncLib
             //_connection.LogMessage += new RfbClient.LogMessageEventHandler(Connection_LogMessage);
 
             _connection.StartConnection();
+
+            if(AutoUpdate)
+                TmrScreen.Enabled = true;
         }
 
         private void Connection_ScreenUpdate(object sender, ScreenUpdateEventArgs e)
         {
             if (_connection != null && _connection.IsConnected)
             {
-                UpdateImage(e);
+                lock (_lockObj)
+                {
+                    UpdateImage(e);
+                }
             }
         }
 
@@ -174,26 +186,29 @@ namespace VncLib
             {
                 if (newScreens.Rects.Count == 0)
                     return;
-                _lastUpdate = DateTime.Now;
-
+                //_lastUpdate = DateTime.Now;
+                
                 if (_bitmap == null)
                 {
                     _bitmap = new WriteableBitmap(newScreens.Rects.First().Width, newScreens.Rects.First().Height, 96,
                         96, PixelFormats.Bgr32, null);
+                    
                 }
+                
                 foreach (var newScreen in newScreens.Rects)
+                {
                     _bitmap.WritePixels(new Int32Rect(0, 0, newScreen.Width, newScreen.Height), newScreen.PixelData,
                         newScreen.Width * 4, newScreen.PosX, newScreen.PosY);
+                }
+                
+                _screen = BitmapFromWriteableBitmap(_bitmap);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine();
+                Console.WriteLine(e.ToString());
                 throw;
             }
         }
-
-
-
 
         /// <summary>
         /// Checkinterval to check, if the Clipboard changed. Not a stylish way, but it works
@@ -336,6 +351,20 @@ namespace VncLib
             _nonSpecialKeys.Add(Key.NumPad7);
             _nonSpecialKeys.Add(Key.NumPad8);
             _nonSpecialKeys.Add(Key.NumPad9);
+        }
+
+        private System.Drawing.Bitmap BitmapFromWriteableBitmap(WriteableBitmap writeBmp)
+        {
+            System.Drawing.Bitmap bmp;
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                BitmapEncoder enc = new BmpBitmapEncoder();
+                enc.Frames.Add(BitmapFrame.Create((BitmapSource)writeBmp));
+                enc.Save(outStream);
+                var bmp2 = new System.Drawing.Bitmap(outStream);
+                bmp = new Bitmap(bmp2);
+            }
+            return bmp;
         }
     }
 }
