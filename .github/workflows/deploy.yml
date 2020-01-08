@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup Nuget.exe
+      uses: warrenbuckley/Setup-Nuget@v1
+    - name: Setup MSBuild.exe
+      uses: warrenbuckley/Setup-MSBuild@v1
+    - name: Build with msbuild
+      run: msbuild VncLib.sln -p:Configuration=Release -r
+    - name: Pack nuget package
+      run: nuget pack VncLib.nuspec -OutputDirectory VncLib.Wpf\bin\Release
+    - name: Add private GitHub registry to NuGet
+      run: nuget sources add -name "GPR" -Source https://nuget.pkg.github.com/Buerkert/index.json -Username Buerkert -Password ${{ secrets.GITHUB_TOKEN }}
+    - name: Push generated package to GitHub registry
+      run: nuget push VncLib.Wpf\bin\Release\*.nupkg -Source "GPR"
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: VncLib
+        path: VncLib.Wpf\bin\Release
