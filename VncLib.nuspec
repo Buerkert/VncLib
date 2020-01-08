@@ -18,8 +18,8 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="VncLib.Wpf\bin\Release\VncLib.dll" target="lib" />
-    <file src="VncLib.Wpf\bin\Release\VncLib.Wpf.dll" target="lib" />
+    <file src="VncLib.Wpf\bin\Release\VncLib.dll" target="lib\net45" />
+    <file src="VncLib.Wpf\bin\Release\VncLib.Wpf.dll" target="lib\net45" />
     <file src="LICENSE.txt" target="LICENSE.txt" />
   </files>
 </package>
