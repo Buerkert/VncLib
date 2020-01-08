@@ -98,7 +98,11 @@ namespace VncLib.Client
             return _canExecute;
         }
 
-        public event EventHandler CanExecuteChanged;
+        public event EventHandler CanExecuteChanged
+        {
+            add { throw new NotSupportedException(); }
+            remove { }
+        }
 
         public void Execute(object parameter)
         {
