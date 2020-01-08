@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Buerkert.VncLib</id>
+    <version>1.0.0</version>
+    <authors>Buerkert</authors>
+    <owners>Buerkert</owners>
+    <license type="file">LICENSE.txt</license>
+    <projectUrl>https://github.com/Buerkert/Buerkert.VncLib</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+      Implementation of the VNC Remote Framebuffer (RFB) Protocol
+    </description>
+    <copyright>Copyright © Buerkert 2020</copyright>
+    <tags>vnc rfb</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.5" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="VncLib.Wpf\bin\Release\VncLib.dll" target="lib" />
+    <file src="VncLib.Wpf\bin\Release\VncLib.Wpf.dll" target="lib" />
+    <file src="LICENSE.txt" target="LICENSE.txt" />
+  </files>
+</package>
