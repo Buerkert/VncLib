@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
@@ -1428,27 +1429,23 @@ namespace VncLib
             {
                 _receiverThread = new Thread(Receiver_ProgressThread);
                 _receiverThread.Priority = ThreadPriority.BelowNormal;
-                _receiverThread.Start(e.UserState);
+                _receiverThread.Start();
             }
-            else
-            {
-                _dataChannel.Send(e.UserState);
-            }
+
+            _dataChannel.Send(e.UserState);
             
         }
 
         /// <summary>
         /// The Thread to update the Backbuffer
         /// </summary>
-        /// <param name="objChangeData"></param>
-        void Receiver_ProgressThread(object objChangeData)
+        void Receiver_ProgressThread()
         {
             for (;;)
             {
                 try
                 {
-                    objChangeData = _dataChannel.Receive();
-                    var changeDatas = (List<RfbRectangle>)objChangeData; //Parse Update-Data
+                    var changeDatas = (List<RfbRectangle>)_dataChannel.Receive(); //Parse Update-Data
 
                     ScreenUpdate?.Invoke(this, new ScreenUpdateEventArgs()
                     {
@@ -2739,6 +2736,7 @@ namespace VncLib
                 Log(Logtype.Warning, "Remoteconnection closed by Server");
             }
         }
+
 
         private void Log(Logtype lt, string lm) { } //logging interface
 
