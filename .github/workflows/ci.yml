@@ -1,0 +1,25 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup Nuget.exe
+      uses: warrenbuckley/Setup-Nuget@v1
+    - name: Setup MSBuild.exe
+      uses: warrenbuckley/Setup-MSBuild@v1
+    - name: Build with msbuild
+      run: msbuild VncLib.sln -p:Configuration=Release -r
+    - name: Pack nuget package
+      run: nuget pack VncLib.nuspec -OutputDirectory VncLib.Wpf\bin\Release
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: VncLib
+        path: VncLib.Wpf\bin\Release
