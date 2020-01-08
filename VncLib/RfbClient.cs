@@ -3,10 +3,10 @@
 // license that can be found in the LICENSE file.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
@@ -29,13 +29,15 @@ namespace VncLib
         private UInt16[] _largestFrame = new UInt16[2] { 0, 0 }; //The largest known frame (x/Y)
         private BackgroundWorker _receiver; //The BackgroundWorkerthread for receiving Data
         private bool _isConnected; //Is the Client connected?
-        private bool _stop;
         private UInt16 _previousX;
         private UInt16 _previousY;
         private DateTime _lastReceive = DateTime.Now; //The Timestamp when the last Received Frame happend
 
-        private Thread _receiverThread;
-        private Channel<object> _dataChannel = new Channel<object>();
+        private Task _receiverTask = null;
+        private BlockingCollection<List<RfbRectangle>> _dataChannel = new BlockingCollection<List<RfbRectangle>>();
+        private CancellationTokenSource _receiverTaskCancellationTokenSource = new CancellationTokenSource();
+ 
+
         //private int _lastReceiveTimeout = 1000; //If no changes were made, a new Frame will be requested after x ms
         //private DispatcherTimer _LastReceiveTimer = new DispatcherTimer(); //The timer, that requests new Frames
 
@@ -1410,9 +1412,14 @@ namespace VncLib
         /// </summary>
         private void StartServerListener()
         {
+            if (_receiverTask == null)
+            {
+                var cancellationToken = _receiverTaskCancellationTokenSource.Token;
+                _receiverTask = Task.Run(() => Receiver_ProgressThread(cancellationToken), cancellationToken);
+            }
             _receiver = new BackgroundWorker();
-            _receiver.ProgressChanged += new ProgressChangedEventHandler(_Receiver_ProgressChanged);
-            _receiver.DoWork += new DoWorkEventHandler(Receiver);
+            _receiver.ProgressChanged += _Receiver_ProgressChanged;
+            _receiver.DoWork += Receiver;
             _receiver.WorkerReportsProgress = true;
             _receiver.RunWorkerAsync();
         }
@@ -1424,42 +1431,30 @@ namespace VncLib
         /// <param name="e">The Color/Pixel-Information</param>
         void _Receiver_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            //Create Thread for running Backbuffer-Update
-            if (_receiverThread == null)
+            if (!_dataChannel.IsAddingCompleted)
             {
-                _receiverThread = new Thread(Receiver_ProgressThread);
-                _receiverThread.Priority = ThreadPriority.BelowNormal;
-                _receiverThread.Start();
-            }
-
-            _dataChannel.Send(e.UserState);
-            
+                _dataChannel.Add((List<RfbRectangle>) e.UserState);
+            }                        
         }
 
         /// <summary>
         /// The Thread to update the Backbuffer
         /// </summary>
-        void Receiver_ProgressThread()
+        void Receiver_ProgressThread(CancellationToken cancelToken)
         {
-            for (;;)
+            foreach (var changeDatas in _dataChannel.GetConsumingEnumerable(cancelToken))
             {
                 try
                 {
-                    var changeDatas = (List<RfbRectangle>)_dataChannel.Receive(); //Parse Update-Data
-
                     ScreenUpdate?.Invoke(this, new ScreenUpdateEventArgs()
                     {
                         Rects = changeDatas,
                     });
-
                 }
                 catch (Exception ea)
                 {
                     Log(Logtype.Error, ea.ToString());
                 }
-
-                if (_stop)
-                    break;
             }
         }
 
@@ -1502,7 +1497,6 @@ namespace VncLib
                 //Create a TcpClient
                 _client = new TcpClient();
                 _client.Connect(server, port);
-                _stop = false;
                 //Get a client stream for reading and writing.
                 _dataStream = _client.GetStream();
                 return true;
@@ -1525,10 +1519,10 @@ namespace VncLib
             {
                 _disconnectionInProgress = true;
                 // Close everything.
-                _stop = true;
+                _receiverTaskCancellationTokenSource.Cancel();
+                _dataChannel.CompleteAdding();
                 _dataStream.Close();
                 _client.Close();
-                _receiverThread.Abort();
             }
             catch (SocketException ea)
             {
@@ -2121,7 +2115,7 @@ namespace VncLib
         /// <param name="height"></param>
         private void SendFramebufferUpdateRequest(bool isIncremental, UInt16 posX, UInt16 posY, UInt16 width, UInt16 height)
         {
-            if (_stop)
+            if (_dataChannel.IsAddingCompleted)
                 return;
             Log(Logtype.Debug, "Send SetFramebufferUpdateRequest with the following parameters: Incr:" + isIncremental + ", PosX:" + posX + ", PosY:" + posY + ", Width:" + width + ", Height:" + height);
 
