@@ -1,80 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D7DADE27-94C7-4F5B-8149-85C63C56A053}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VncLib</RootNamespace>
-    <AssemblyName>VncLib</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <TargetFrameworks>net5.0-windows;net48</TargetFrameworks>
+    <AssemblyTitle>VncLib</AssemblyTitle>
+    <Company>VncLib</Company>
+    <Product>VncLib</Product>
+    <Copyright>Copyright 2018 The VncLib Authors</Copyright>
+    <UseWpf>true</UseWpf>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Windows" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Channel.cs" />
-    <Compile Include="ClientMessageType.cs" />
-    <Compile Include="ConnectionFailedEventArgs.cs" />
-    <Compile Include="ConnectionProperties.cs" />
-    <Compile Include="Helper.cs" />
-    <Compile Include="ImageExtension.cs" />
-    <Compile Include="KeyCombination.cs" />
-    <Compile Include="LogMessageEventArgs.cs" />
-    <Compile Include="Logtype.cs" />
-    <Compile Include="NotSupportedServerMessageEventArgs.cs" />
-    <Compile Include="PixelFormat.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RawRectangle.cs" />
-    <Compile Include="RfbClient.cs" />
-    <Compile Include="RfbEncoding.cs" />
-    <Compile Include="RfbEncodingDetails.cs" />
-    <Compile Include="RfbRectangle.cs" />
-    <Compile Include="ScreenResolutionChangeEventArgs.cs" />
-    <Compile Include="ScreenUpdateEventArgs.cs" />
-    <Compile Include="SecurityType.cs" />
-    <Compile Include="ServerCutTextEventArgs.cs" />
-    <Compile Include="ServerMessageType.cs" />
-    <Compile Include="VncCommands\Command.cs" />
-    <Compile Include="VncCommands\IRfbClient.cs" />
-    <Compile Include="VncCommands\IVncCommand.cs" />
-    <Compile Include="VncCommands\IVncDragCommand.cs" />
-    <Compile Include="VncCommands\LuaTableVncCommandConverter.cs" />
-    <Compile Include="VncCommands\VncCommand.cs" />
-    <Compile Include="VncCommands\VncDragCommand.cs" />
-    <Compile Include="VncCommands\VncPointCommand.cs" />
-    <Compile Include="VncConnection.cs" />
-    <Compile Include="VncLibUserCallback.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
