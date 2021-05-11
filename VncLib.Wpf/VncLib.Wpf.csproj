@@ -1,14 +1,47 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <TargetFrameworks>net7.0-windows;net48</TargetFrameworks>
-    <Company>VncLib</Company>
-    <Product>VncLib.Wpf</Product>
-    <Copyright>Copyright 2018 The VncLib Authors</Copyright>
+   <Product>VncLib.Wpf</Product>
+    <Copyright>
+      original Copyright 2018 The VncLib Authors#
+      modified by Copyright (c) Buerkert Fluid Control Systems 2021
+    </Copyright>
     <UseWpf>true</UseWpf>
-    <VersionPrefix>1.5.0</VersionPrefix>
+    <Company>Buerkert</Company>
+    <VersionPrefix>1.1.0</VersionPrefix>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>Buerkert.VncLib</PackageId>
+    <Description>Implementation of the VNC Remote Framebuffer (RFB) Protocol</Description>
+    <PackageProjectUrl>https://github.com/Buerkert/Buerkert.VncLib</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Buerkert/Buerkert.VncLib.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageTags>vnc rfb</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- workaround for including referenced dlls-->
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+  <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))"/>
+    </ItemGroup>
+  </Target>
   <ItemGroup>
-    <ProjectReference Include="..\VncLib\VncLib.csproj">
+    <Content Include="..\README.md">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </Content>
+    <Content Include="..\LICENSE.md">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VncLib\VncLib.csproj" >
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>VncLib.dll</IncludeAssets>
     </ProjectReference>

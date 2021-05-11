@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+
     <TargetFrameworks>net7.0-windows;net48</TargetFrameworks>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>  
     <Company>VncLib</Company>
     <Product>VncLib.Client</Product>
     <Copyright>Copyright 2018 The VncLib Authors</Copyright>
