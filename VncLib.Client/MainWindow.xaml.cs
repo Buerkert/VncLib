@@ -31,7 +31,7 @@ namespace VncLib.Client
             DataContext = new MainWindowViewModel();
         }
 
-        private void OnContentChanged(object sender, RoutedEventArgs e)
+        protected override void OnContentChanged(object oldContent, object newContent)
         {
             VncLibControl.VncLibUserCallback = VncLibUserCallback;
             VncLibControl.Connect();
