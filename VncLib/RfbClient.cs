@@ -1710,11 +1710,11 @@ namespace VncLib
                     }
 
                     //DES Encryption
-                    DES desEncryption = new DESCryptoServiceProvider();
+                    DES desEncryption = DES.Create();
                     desEncryption.Mode = CipherMode.ECB;
                     desEncryption.Padding = PaddingMode.None;
 
-                    var encryptor = desEncryption.CreateEncryptor(pwVnc, null);
+                    var encryptor = desEncryption.CreateEncryptor(pwVnc, desEncryption.IV);
 
                     //Generate the Responsekey for the Challenge
                     var challengeResponse = new Byte[16];
