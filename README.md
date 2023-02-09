@@ -40,4 +40,4 @@ See also the list of [contributors](https://github.com/patdhlk/vnclib/contributo
 
 ## License
 
-This project is licensed under the three-clause BSD license - see the [LICENSE](LICENSE) file for details
+This project is licensed under the three-clause BSD license - see the [LICENSE](LICENSE.md) file for details
