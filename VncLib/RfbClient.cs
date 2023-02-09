@@ -1710,7 +1710,7 @@ namespace VncLib
                     }
 
                     //DES Encryption
-                    DES desEncryption = new DESCryptoServiceProvider();
+                    DES desEncryption = DES.Create();
                     desEncryption.Mode = CipherMode.ECB;
                     desEncryption.Padding = PaddingMode.None;
 
