@@ -8,12 +8,6 @@
     <VersionPrefix>1.5.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VncLibControl.xaml.cs">
-      <DependentUpon>VncLibControl.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\VncLib\VncLib.csproj" >
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>VncLib.dll</IncludeAssets>
