@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Drawing;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -33,7 +32,7 @@ namespace VncLib.Wpf
         private WriteableBitmap _bitmap;
         private RfbClient _connection;
 
-        private bool _ignoreNextKey;
+        // private bool _ignoreNextKey;
 
         private int _lastClipboardHash; //To check, if the text has changed
         private DateTime _lastMouseMove = DateTime.Now;
@@ -327,8 +326,8 @@ namespace VncLib.Wpf
             if (!_nonSpecialKeys.Contains(e.Key) || Keyboard.IsKeyDown(Key.LeftCtrl)
             ) //If Control-Key is pressed, don't Send NonSpecialKey as a Sign
             {
-                if (Keyboard.IsKeyDown(Key.LeftCtrl))
-                    _ignoreNextKey = true;
+                //if (Keyboard.IsKeyDown(Key.LeftCtrl))
+                //    _ignoreNextKey = true;
 
                 _connection.SendKey(e);
             }
@@ -345,8 +344,8 @@ namespace VncLib.Wpf
 
             if (!_nonSpecialKeys.Contains(e.Key) || Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                if (Keyboard.IsKeyDown(Key.LeftCtrl))
-                    _ignoreNextKey = true;
+                //if (Keyboard.IsKeyDown(Key.LeftCtrl))
+                //    _ignoreNextKey = true;
 
                 _connection.SendKey(e);
             }
@@ -411,7 +410,7 @@ namespace VncLib.Wpf
                 FakeInput.Clear();
 
                 _connection.SendSign(sign.ToCharArray()[0]);
-                _ignoreNextKey = true;
+                //_ignoreNextKey = true;
             }
         }
 

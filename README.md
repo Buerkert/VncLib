@@ -8,12 +8,12 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-* .NET Framework 4.5.2 or higher
-* Visual Studio 2017 Community or higher
+* .NET Framework 4.8
+* .NET 7.0
 
 ### Installing
 
-Download the latest release, see the [Releases](https://github.com/patdhlk/vnclib/releases) and add a reference in your .NET application or build it yourself using msbuild or/and vs2017.
+Download the latest release, see the [Releases](https://github.com/patdhlk/vnclib/releases) and add a reference in your .NET application or build it yourself using dotnet.
 
 Then you can use it in your ViewModel or somewhere you want to display the remote desktop.
 
@@ -34,9 +34,10 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## Authors
 
 * **patdhlk** - *Initial work* - [patdhlk](https://github.com/patdhlk)
+* **theKBro** - *.NET support* - [theKBro](https://github.com/theKBro)
 
 See also the list of [contributors](https://github.com/patdhlk/vnclib/contributors) who participated in this project.
 
 ## License
 
-This project is licensed under the three-clause BSD license - see the [LICENSE](LICENSE) file for details
+This project is licensed under the three-clause BSD license - see the [LICENSE](LICENSE.md) file for details
