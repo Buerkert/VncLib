@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <TargetFrameworks>net7.0-windows;net48</TargetFrameworks>
-   <Product>VncLib.Wpf</Product>
+    <Product>VncLib.Wpf</Product>
     <Copyright>
       original Copyright 2018 The VncLib Authors#
       modified by Copyright (c) Buerkert Fluid Control Systems 2021
