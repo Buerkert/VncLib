@@ -16,7 +16,7 @@
     <StackPanel>
         <Menu Height="23" Name="menu1" VerticalAlignment="Top">
             <MenuItem Header="Connect">
-                <MenuItem Header="Connect to server" Name="miConnect" Click="OnContentChanged" ></MenuItem>
+                <MenuItem Header="Connect to server" Name="miConnect" Click="connect_click" ></MenuItem>
                 <!--<MenuItem Header="Refresh Screen" Name="miRefresh" Click="miRefresh_Click"></MenuItem>-->
             </MenuItem>
             <!--<MenuItem Header="Send Special Keys">
