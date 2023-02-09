@@ -8,8 +8,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-* .NET Framework 4.5.2 or higher
-* Visual Studio 2017 Community or higher
+* .NET Framework 4.8
+* .NET 7.0
 
 ### Installing
 
